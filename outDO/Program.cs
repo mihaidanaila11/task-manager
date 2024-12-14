@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using outDO.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,16 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+string googleKeysJson = File.ReadAllText("GoogleKeys.json");
+var googleKeys = JsonConvert.DeserializeObject<Dictionary<string, string>>(googleKeysJson);
+
+builder.Services.AddAuthentication()
+   .AddGoogle(options =>
+   {
+       options.ClientId = googleKeys["ClientId"];
+       options.ClientSecret = googleKeys["ClientSecret"];
+   });
 
 var app = builder.Build();
 
@@ -33,6 +44,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

@@ -4,12 +4,6 @@
     ViewData["Title"] = "Register";
 }
 
-
-<head>
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <meta name="google-signin-client_id" content="704508695898-55mkp7keh3t3qr826bgth9tkivrj71qk.apps.googleusercontent.com">
-</head>
-
 <h1>@ViewData["Title"]</h1>
 
 <div class="row">
@@ -44,7 +38,6 @@
     <div class="col-md-6 col-md-offset-2">
         <section>
             <h3>Use another service to register.</h3>
-            <div class="g-signin2" data-onsuccess="onSignIn"></div>
             <hr />
             @{
                 if ((Model.ExternalLogins?.Count ?? 0) == 0)
@@ -63,7 +56,18 @@
                             <p>
                                 @foreach (var provider in Model.ExternalLogins!)
                                 {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                    
+                                    <button type="submit" class="btn btn-light border rounded-pill px-4 py-2" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                                        @if (provider.Name == "Google")
+                                        {
+                                            <i class="bi bi-google"></i>
+
+                                            <span>Sign in with Google</span>
+                                            
+                                        }
+                                            
+                                    </button>
+                                   
                                 }
                             </p>
                         </div>
