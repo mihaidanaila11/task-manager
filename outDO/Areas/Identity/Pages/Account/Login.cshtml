@@ -55,8 +55,10 @@
                 {
                     <div>
                         <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
+                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                                article
+                                about setting up this ASP.NET application to support logging in via external services
+                            </a>.
                         </p>
                     </div>
                 }
@@ -67,7 +69,18 @@
                             <p>
                                 @foreach (var provider in Model.ExternalLogins!)
                                 {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+
+                                    <button type="submit" class="btn btn-light border rounded-pill px-4 py-2" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                                        @if (provider.Name == "Google")
+                                        {
+                                            <i class="bi bi-google"></i>
+
+                                            <span>Log in with Google</span>
+
+                                        }
+
+                                    </button>
+
                                 }
                             </p>
                         </div>
