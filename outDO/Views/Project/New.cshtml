@@ -1,0 +1,13 @@
+﻿@model outDO.Models.Project
+
+<h2>Formular adaugare proiect</h2>
+
+<form asp-controller="Project" asp-action="New">
+    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
+    <input asp-for="Id" type="hidden" value="id"/>
+
+    <label asp-for="Name">Nume Proiect</label>
+    <input asp-for="Name"/>
+    <button type="submit">Adauga proiect</button>
+</form>
