@@ -3,4 +3,5 @@
 @foreach(var project in ViewBag.Projects)
 {
     <h3>@project.Name</h3>
+    <a class="btn btn-success" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">View</a>
 }

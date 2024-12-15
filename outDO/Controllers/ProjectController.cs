@@ -64,5 +64,12 @@ namespace outDO.Controllers
             }
         }
 
+        public IActionResult Show(string id)
+        {
+            Project project = db.Projects.Where(p => p.Id == id).First();
+
+            return View(project);
+        }
+
     }
 }
