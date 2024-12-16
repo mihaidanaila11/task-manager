@@ -28,12 +28,12 @@ namespace outDO.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if(DateStart <= DateFinish)
+            if (DateStart > DateFinish)
             {
-                yield return ValidationResult.Success;
+                yield return new ValidationResult("The start date has to be before the finish date");
             }
 
-            yield return new ValidationResult("The start start has to be before the finish date");
+            
         }
     }
 }
