@@ -39,5 +39,15 @@ namespace outDO.Controllers
                 return View(board);
             }
         }
+
+        public IActionResult Show(string id)
+        {
+            Board board = db.Boards.Where(b => b.Id == id).First();
+
+            var tasks = db.Tasks.Where(t => t.BoardId == board.Id).ToList();
+            ViewBag.Tasks = tasks;
+
+            return View(board);
+        }
     }
 }

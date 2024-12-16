@@ -24,6 +24,6 @@ namespace outDO.Models
         //poze
         public string? Media {  get; set; }
 
-        public virtual Board Board { get; set; }
+        public virtual Board? Board { get; set; }
     }
 }

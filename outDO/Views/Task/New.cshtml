@@ -1,0 +1,24 @@
+﻿@model outDO.Models.Task
+
+<form asp-controller="Task" asp-action="New">
+    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
+    <input type="hidden" asp-for="Id" value="id" />
+    <input type="hidden" asp-for="BoardId" value="@ViewBag.BoardId" />
+    <input type="hidden" asp-for="Status" value="status" />
+
+    <label asp-for="Title">Task Title</label>
+    <input asp-for="Title" />
+
+    <label asp-for="Description">Description</label>
+    <textarea asp-for="Description"></textarea>
+
+    <label asp-for="DateStart">Start Date</label>
+    <input type="date" asp-for="DateStart" value="@DateTime.Today.ToString()"/>
+
+    <label asp-for="DateFinish">Finish Date</label>
+    <input type="date" asp-for="DateFinish" value="@DateTime.Today.AddDays(1).ToString()" />
+
+    <button type="submit">Add Board</button>
+
+</form>

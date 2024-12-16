@@ -6,6 +6,7 @@
 @foreach (var board in ViewBag.Boards)
 {
     <h4>@board.Name</h4>
+    <a class="btn btn-success" asp-controller="Board" asp-action="Show" asp-route-id="@board.Id">View Board</a>
 }
 
 <a class="btn btn-success" asp-controller="Board" asp-action="New" asp-route-id="@Model.Id">Add Board</a>

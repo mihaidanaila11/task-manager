@@ -1,0 +1,11 @@
+﻿@model outDO.Models.Board
+
+<h2>@Model.Name</h2>
+
+<h3>Tasks</h3>
+@foreach (var task in ViewBag.Tasks)
+{
+    <h4>@task.Title</h4>
+}
+
+<a class="btn btn-success" asp-controller="Task" asp-action="New" asp-route-id="@Model.Id">Add Task</a>
