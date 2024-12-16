@@ -1,17 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
+ 
+//pas 1 user si roluri
 
 namespace outDO.Models
 {
-    public class User
+    public class User : IdentityUser 
     {
-        [Key]
-        public int Id { get; set; }
-        public string username { get; set; }
-        public string password { get; set; }
-        public string role { get; set; }
-        public string profilePicture { get; set; }
-
-        public virtual ICollection<ProjectMember> ProjectMembers { get; set; }
+        
+        public virtual ICollection<Comment>? Comments { get; set; }
+        public virtual ICollection<ProjectMember>? ProjectMembers { get; set; }
 
     }
 }
