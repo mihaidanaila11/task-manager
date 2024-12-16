@@ -11,6 +11,7 @@ namespace outDO.Data
         {
         }
 
+        
         public DbSet<Project> Projects { get; set; }
         public DbSet<Board> Boards { get; set; }
         public DbSet<Models.Task> Tasks { get; set; }
@@ -38,6 +39,7 @@ namespace outDO.Data
             .WithMany(ac => ac.ProjectMembers)
             .HasForeignKey(ac => ac.ProjectId);
         }
+        
     }
 }
 

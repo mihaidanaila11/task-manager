@@ -68,6 +68,9 @@ namespace outDO.Controllers
         {
             Project project = db.Projects.Where(p => p.Id == id).First();
 
+            var boards = db.Boards.Where(b => b.ProjectId == project.Id).ToList();
+            ViewBag.Boards = boards;
+
             return View(project);
         }
 

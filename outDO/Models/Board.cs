@@ -6,15 +6,14 @@ namespace outDO.Models
     public class Board
     {
         [Key]
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Required]
-        public int ProjectId { get; set; }
+        public string ProjectId { get; set; }
 
         [Required]
         public string Name { get; set; }
 
-        [Required]
-        public virtual Project Project { get; set; }
+        public virtual Project? Project { get; set; }
 
 
     }
