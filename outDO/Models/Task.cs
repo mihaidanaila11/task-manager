@@ -5,9 +5,9 @@ namespace outDO.Models
     public class Task
     {
         [Key]
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Required]
-        public int? BoardId { get; set; }
+        public string BoardId { get; set; }
 
         [Required]
         public string Title { get; set; }
