@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using outDO.Data;
 using outDO.Models;
 using Task = outDO.Models.Task;
@@ -14,6 +15,7 @@ namespace outDO.Controllers
             this.db = db;
         }
 
+        [Authorize]
         public IActionResult New(string id)
         {
             ViewBag.BoardId = id;
@@ -39,6 +41,18 @@ namespace outDO.Controllers
                 ViewBag.BoardId = task.BoardId;
                 return View(task);
             }
+        }
+
+        [Authorize]
+        public IActionResult Delete(string id)
+        {
+
+            Task task = db.Tasks.Find(id);
+            string boardId = task.BoardId;
+            db.Tasks.Remove(task);
+            db.SaveChanges();
+
+            return Redirect("/Board/Show/" + boardId);
         }
     }
 }

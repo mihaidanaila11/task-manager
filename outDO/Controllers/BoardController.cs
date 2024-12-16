@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using outDO.Data;
 using outDO.Models;
 
@@ -13,6 +14,8 @@ namespace outDO.Controllers
             this.db = db;
         }
 
+
+        [Authorize]
         public IActionResult New(string id)
         {
             ViewBag.ProjectId = id;
@@ -40,6 +43,7 @@ namespace outDO.Controllers
             }
         }
 
+        [Authorize]
         public IActionResult Show(string id)
         {
             Board board = db.Boards.Where(b => b.Id == id).First();
