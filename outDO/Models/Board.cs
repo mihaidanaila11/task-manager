@@ -14,7 +14,6 @@ namespace outDO.Models
         [MinLength(3, ErrorMessage = "Numele trebuie sa aiba minim 3 caractere")]
         public string Name { get; set; }
 
-        [Required]
         public virtual Project? Project { get; set; }
 
 

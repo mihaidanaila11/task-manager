@@ -7,7 +7,7 @@ namespace outDO.Models
 {
     public class User : IdentityUser 
     {
-        public string profilePicture { get; set; }
+        public string? profilePicture { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }
         public virtual ICollection<ProjectMember>? ProjectMembers { get; set; }
 

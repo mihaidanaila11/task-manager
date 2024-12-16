@@ -9,11 +9,11 @@ namespace outDO.Controllers
     public class ProjectController : Controller
     {
         private readonly ApplicationDbContext db;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<User> userManager;
 
         public ProjectController(
             ApplicationDbContext db,
-            UserManager<IdentityUser> userManager)
+            UserManager<User> userManager)
         {
             this.db = db;
             this.userManager = userManager;
