@@ -7,7 +7,7 @@ namespace outDO.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public int BoardId { get; set; }
+        public int? BoardId { get; set; }
 
         [Required]
         public string Title { get; set; }
@@ -24,6 +24,6 @@ namespace outDO.Models
         //poze
         public string? Media {  get; set; }
 
-        public virtual Board Board { get; set; }
+        public virtual Board? Board { get; set; }
     }
 }

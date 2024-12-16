@@ -12,7 +12,7 @@ namespace outDO.Models
         public string? Background { get; set; }
 
         //un proiect are mai multe board-uri
-        public virtual ICollection<Board> Boards { get; set; }
+        public virtual ICollection<Board>? Boards { get; set; }
         public virtual ICollection<ProjectMember> ProjectMembers { get; set; }
     }
 }

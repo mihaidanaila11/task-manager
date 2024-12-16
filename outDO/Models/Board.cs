@@ -7,14 +7,15 @@ namespace outDO.Models
     {
         [Key]
         public int Id { get; set; }
-        [Required]
-        public int ProjectId { get; set; }
+        [Required(ErrorMessage = "Proiectul este obligatoriu")]
+        public int? ProjectId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Numele este obligatoriu")]
+        [MinLength(3, ErrorMessage = "Numele trebuie sa aiba minim 3 caractere")]
         public string Name { get; set; }
 
         [Required]
-        public virtual Project Project { get; set; }
+        public virtual Project? Project { get; set; }
 
 
     }
