@@ -4,19 +4,14 @@ using outDO.Models;
 
 namespace outDO.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    //PASUL 3: users and roles
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
 
-        
-        public DbSet<Project> Projects { get; set; }
-        public DbSet<Board> Boards { get; set; }
-        public DbSet<Models.Task> Tasks { get; set; }
-
-        public DbSet<ProjectMember> ProjectMembers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,7 +34,12 @@ namespace outDO.Data
             .WithMany(ac => ac.ProjectMembers)
             .HasForeignKey(ac => ac.ProjectId);
         }
-        
+
+        public DbSet<User> Users { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectMember> ProjectMembers { get; set; }
+        public DbSet<Board> Boards { get; set; }
+        public DbSet<Comment>  Comments { get; set; }
+        public DbSet<outDO.Models.Task> Tasks { get; set; } //am pus asa ca imi dadea ceva abiguu
     }
 }
-

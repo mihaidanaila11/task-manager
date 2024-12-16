@@ -7,7 +7,11 @@ namespace outDO.Models
         [Key]
         public string Id { get; set; }
         [Required]
+<<<<<<< HEAD
         public string BoardId { get; set; }
+=======
+        public int? BoardId { get; set; }
+>>>>>>> prezentare-intermediara
 
         [Required]
         public string Title { get; set; }
