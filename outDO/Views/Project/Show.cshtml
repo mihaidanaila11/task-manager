@@ -1,12 +1,24 @@
 ﻿@model outDO.Models.Project
 
 <h2>@Model.Name</h2>
+<hr />
 
+<a class="btn btn-success mb-3" asp-controller="Board" asp-action="New" asp-route-id="@Model.Id">Add Board</a>
 <h3>Boards</h3>
+<div class="d-flex justify-content-around mt-3">
 @foreach (var board in ViewBag.Boards)
 {
-    <h4>@board.Name</h4>
-    <a class="btn btn-success" asp-controller="Board" asp-action="Show" asp-route-id="@board.Id">View Board</a>
-}
+    <div class="card col-3 text-center">
+        <div class="m-3">
+            <h4>@board.Name</h4>
+            <a class="btn btn-success" asp-controller="Board" asp-action="Show" asp-route-id="@board.Id">View Board</a>
+            
+            <a class="btn btn-danger" asp-controller="Board" asp-action="Delete" asp-route-id="@board.Id">Delete Board</a>
 
-<a class="btn btn-success" asp-controller="Board" asp-action="New" asp-route-id="@Model.Id">Add Board</a>
+                <a class="btn btn-warning" asp-controller="Board" asp-action="Edit" asp-route-id="@board.Id">Edit Project</a>
+        </div>
+    </div>
+    
+}
+</div>
+

@@ -1,7 +1,20 @@
 ﻿<h2>Afisare Proiecte</h2>
 
+<hr />
+<a class="btn btn-success" asp-controller="Project" asp-action="New">Add Project</a>
+
+<div class="d-flex justify-content-around mt-3">
 @foreach(var project in ViewBag.Projects)
 {
-    <h3>@project.Name</h3>
-    <a class="btn btn-success" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">View</a>
+    <div class="card col-3 text-center">
+        <div class="m-3">
+            <h3>@project.Name</h3>
+            <a class="btn btn-success" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">View</a>
+
+            <a class="btn btn-danger" asp-controller="Project" asp-action="Delete" asp-route-id="@project.Id">Delete Project</a>
+
+            <a class="btn btn-warning" asp-controller="Project" asp-action="Edit" asp-route-id="@project.Id">Edit Project</a>
+        </div>
+    </div>
 }
+</div>

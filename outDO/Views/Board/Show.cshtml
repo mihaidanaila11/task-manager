@@ -1,11 +1,27 @@
 ﻿@model outDO.Models.Board
 
 <h2>@Model.Name</h2>
+<hr />
+
+<a class="btn btn-success mb-3" asp-controller="Task" asp-action="New" asp-route-id="@Model.Id">Add Task</a>
 
 <h3>Tasks</h3>
+<div class="d-flex justify-content-around mt-3">
 @foreach (var task in ViewBag.Tasks)
 {
-    <h4>@task.Title</h4>
+    <div class="card col-3 text-center">
+        <div class="m-3">
+            <h4>@task.Title</h4>
+            @if(@task.Description != null){
+                <p>@task.Description</p>
+            }
+                <p>Added on @task.DateStart.ToString("dd/MM/yyyy/")</p>
+                <p>Deadline: @task.DateFinish.ToString("dd/MM/yyyy/")</p>
+                <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@task.Id">Delete Task</a>
+                <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@task.Id">Edit Task</a>
+            
+        </div>
+    </div>
 }
+</div>
 
-<a class="btn btn-success" asp-controller="Task" asp-action="New" asp-route-id="@Model.Id">Add Task</a>

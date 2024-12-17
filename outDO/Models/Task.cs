@@ -2,7 +2,7 @@
 
 namespace outDO.Models
 {
-    public class Task
+    public class Task : IValidatableObject
     {
         [Key]
         public string Id { get; set; }
@@ -25,5 +25,15 @@ namespace outDO.Models
         public string? Media {  get; set; }
 
         public virtual Board? Board { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (DateStart > DateFinish)
+            {
+                yield return new ValidationResult("The start date has to be before the finish date");
+            }
+
+            
+        }
     }
 }
