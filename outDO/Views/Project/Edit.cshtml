@@ -1,13 +1,18 @@
 ﻿@model outDO.Models.Project
 
-<h2>Formular adaugare proiect</h2>
+<h1>Edit Project</h1>
 
-<form asp-controller="Project" asp-action="Edit">
+<div class="d-flex justify-content-center">
+<form asp-controller="Project" asp-action="Edit"
+          class="col-6 bg-light p-3 rounded">
     <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
     <input asp-for="Id" type="hidden" value="@ViewBag.Project.Id" />
 
-    <label asp-for="Name">Project Name</label>
-    <input asp-for="Name" value="@ViewBag.Project.Name" />
-    <button type="submit">Edit Project</button>
+        <div class="form-floating mb-3">
+        <input asp-for="Name" placeholder="Name" value="@ViewBag.Project.Name" class="form-control"/>
+        <label asp-for="Name">Project Name</label>
+    </div>
+        <button type="submit" class="btn btn-primary">Edit Project</button>
 </form>
+</div>
