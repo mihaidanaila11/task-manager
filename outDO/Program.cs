@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -19,6 +20,8 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
+
+
 string googleKeysJson = File.ReadAllText("GoogleKeys.json");
 var googleKeys = JsonConvert.DeserializeObject<Dictionary<string, string>>(googleKeysJson);
 
@@ -28,6 +31,15 @@ builder.Services.AddAuthentication()
        options.ClientId = googleKeys["ClientId"];
        options.ClientSecret = googleKeys["ClientSecret"];
    });
+
+//daca nu e logat, il trimitem la pagina de prezentare
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Home/Presentation"; // Redirect to the presentation page if not logged in
+    
+});
+
+//odata ce trece de build, devine read-only
 
 var app = builder.Build();
 
@@ -57,6 +69,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+
 
 app.MapControllerRoute(
     name: "default",

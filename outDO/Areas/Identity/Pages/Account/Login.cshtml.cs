@@ -116,7 +116,9 @@ namespace outDO.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
+                    return Redirect(returnUrl ?? Url.Content("~/Home/Index")); //luca a fost aici
+                    //redirect la pagina de home pentru user logati odata ce se logheaza
+                    //A MERS IM SO HAPPY
                 }
                 if (result.RequiresTwoFactor)
                 {

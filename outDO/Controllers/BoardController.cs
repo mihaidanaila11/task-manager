@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using outDO.Data;
@@ -8,16 +8,18 @@ namespace outDO.Controllers
 {
     public class BoardController : Controller
     {
+        //pas 10 user si roluri
+        
+
         private readonly ApplicationDbContext db;
         private readonly UserManager<User> userManager;
-
-        public BoardController(ApplicationDbContext db,
-            UserManager<User> userManager)
+        private readonly RoleManager<IdentityRole> roleManager;
+        public BoardController(ApplicationDbContext context,UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager)
         {
-            this.db = db;
-            this.userManager = userManager;
+            db = context;
+            userManager = _userManager;
+            roleManager = _roleManager;
         }
-
 
         [Authorize]
         public IActionResult New(string id)

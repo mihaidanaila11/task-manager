@@ -12,8 +12,8 @@ using outDO.Data;
 namespace outDO.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241216180641_pfp")]
-    partial class pfp
+    [Migration("20241216184228_newDB")]
+    partial class newDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
