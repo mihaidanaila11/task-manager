@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 using outDO.Data;
 using outDO.Models;
+using Project = outDO.Models.Project;
 
 namespace outDO.Controllers
 {
@@ -78,5 +80,68 @@ namespace outDO.Controllers
             return View(project);
         }
 
+        private bool isUserAuthorized(string projectId)
+        {
+            var userId = from p in db.Projects
+                         join pm in db.ProjectMembers on
+                         p.Id equals pm.ProjectId
+                         where p.Id == projectId
+                         select pm.UserId;
+            if (userId.First() != userManager.GetUserId(User))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        [Authorize]
+        public IActionResult Delete(string id)
+        {
+            if (!isUserAuthorized(id))
+            {
+                return StatusCode(403);
+            }
+
+            Project project = db.Projects.Find(id);
+
+            db.Projects.Remove(project);
+            db.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
+        [Authorize]
+        public IActionResult Edit(string id)
+        {
+            if (!isUserAuthorized(id))
+            {
+                return StatusCode(403);
+            }
+
+            Project project = db.Projects.Find(id);
+            ViewBag.Project = project;
+
+            return View();
+        }
+
+        [Authorize, HttpPost]
+        public IActionResult Edit(string id, [FromForm] Project requestProject)
+        {
+            Project project = db.Projects.Find(id);
+
+            try
+            {
+                project.Name = requestProject.Name;
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            catch (Exception)
+            {
+                ViewBag.Project = project;
+
+                return View();
+            }
+        }
     }
 }

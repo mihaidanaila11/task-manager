@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using outDO.Data;
 using outDO.Models;
@@ -9,10 +10,13 @@ namespace outDO.Controllers
     public class TaskController : Controller
     {
         private readonly ApplicationDbContext db;
+        private readonly UserManager<User> userManager;
 
-        public TaskController(ApplicationDbContext db)
+        public TaskController(ApplicationDbContext db,
+            UserManager<User> userManager)
         {
             this.db = db;
+            this.userManager = userManager;
         }
 
         [Authorize]
@@ -43,9 +47,32 @@ namespace outDO.Controllers
             }
         }
 
+        private bool isUserAuthorized(string taskId)
+        {
+            var userId = from t in db.Tasks
+                         join b in db.Boards on
+                         t.BoardId equals b.Id
+                         join p in db.Projects on
+                         b.ProjectId equals p.Id
+                         join pm in db.ProjectMembers on
+                         p.Id equals pm.ProjectId
+                         where t.Id == taskId
+                         select pm.UserId;
+            if (userId.First() != userManager.GetUserId(User))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         [Authorize]
         public IActionResult Delete(string id)
         {
+            if(!isUserAuthorized(id))
+            {
+                return StatusCode(403);
+            }
 
             Task task = db.Tasks.Find(id);
             string boardId = task.BoardId;
@@ -53,6 +80,42 @@ namespace outDO.Controllers
             db.SaveChanges();
 
             return Redirect("/Board/Show/" + boardId);
+        }
+
+        [Authorize]
+        public IActionResult Edit(string id)
+        {
+            if (!isUserAuthorized(id))
+            {
+                return StatusCode(403);
+            }
+
+            Task task = db.Tasks.Find(id);
+            ViewBag.Task = task;
+
+            return View();
+        }
+
+        [Authorize, HttpPost]
+        public IActionResult Edit(string id, [FromForm] Task requestTask)
+        {
+            Task task = db.Tasks.Find(id);
+
+            try
+            {
+                task.Title = requestTask.Title;
+                task.Description = requestTask.Description;
+                task.DateStart = requestTask.DateStart;
+                task.DateFinish = requestTask.DateFinish;
+                db.SaveChanges();
+                return Redirect("/Board/Show/" + task.BoardId);
+            }
+            catch (Exception)
+            {
+                ViewBag.Project = task;
+
+                return View();
+            }
         }
     }
 }

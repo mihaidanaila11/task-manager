@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using outDO.Data;
 using outDO.Models;
@@ -8,10 +9,13 @@ namespace outDO.Controllers
     public class BoardController : Controller
     {
         private readonly ApplicationDbContext db;
+        private readonly UserManager<User> userManager;
 
-        public BoardController(ApplicationDbContext db)
+        public BoardController(ApplicationDbContext db,
+            UserManager<User> userManager)
         {
             this.db = db;
+            this.userManager = userManager;
         }
 
 
@@ -52,6 +56,73 @@ namespace outDO.Controllers
             ViewBag.Tasks = tasks;
 
             return View(board);
+        }
+
+        private bool isUserAuthorized(string boardId)
+        {
+            var userId = from b in db.Boards
+                         join p in db.Projects on
+                         b.ProjectId equals p.Id
+                         join pm in db.ProjectMembers on
+                         p.Id equals pm.ProjectId
+                         where b.Id == boardId
+                         select pm.UserId;
+            if (userId.First() != userManager.GetUserId(User))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        [Authorize]
+        public IActionResult Delete(string id)
+        {
+            if (!isUserAuthorized(id))
+            {
+                return StatusCode(403);
+            }
+
+            Board board = db.Boards.Find(id);
+
+            string projectId = board.ProjectId;
+            db.Boards.Remove(board);
+            db.SaveChanges();
+
+            return Redirect("/Project/Show/" + projectId);
+        }
+
+        [Authorize]
+        public IActionResult Edit(string id)
+        {
+            if(!isUserAuthorized(id))
+            {
+                return StatusCode(403);
+            }
+
+            Board board = db.Boards.Find(id);
+            ViewBag.Board = board;
+
+            return View();
+        }
+
+        [Authorize, HttpPost]
+        public IActionResult Edit(string id, [FromForm] Board requestBoard)
+        {
+            Board board = db.Boards.Find(id);
+
+            try
+            {
+                board.Name = requestBoard.Name;
+                db.SaveChanges();
+                return Redirect("/Project/Show/" + board.ProjectId);
+            }
+            catch (Exception)
+            {
+                ViewBag.Project = board;
+
+                return View();
+            }
         }
     }
 }

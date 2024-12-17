@@ -10,6 +10,10 @@
         <div class="m-3">
             <h3>@project.Name</h3>
             <a class="btn btn-success" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">View</a>
+
+            <a class="btn btn-danger" asp-controller="Project" asp-action="Delete" asp-route-id="@project.Id">Delete Project</a>
+
+            <a class="btn btn-warning" asp-controller="Project" asp-action="Edit" asp-route-id="@project.Id">Edit Project</a>
         </div>
     </div>
 }

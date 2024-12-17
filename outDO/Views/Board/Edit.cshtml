@@ -1,0 +1,14 @@
+﻿@model outDO.Models.Board
+
+<form asp-controller="Board" asp-action="Edit">
+    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
+    <input type="hidden" asp-for="Id" value="@ViewBag.Board.Id" />
+    <input type="hidden" asp-for="ProjectId" value="@ViewBag.Board.ProjectId" />
+
+    <label asp-for="Name">Board Name</label>
+    <input asp-for="Name" value="@ViewBag.Board.Name"/>
+
+    <button type="submit">Edit Board</button>
+
+</form>
