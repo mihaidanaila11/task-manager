@@ -1,14 +1,22 @@
 ﻿@model outDO.Models.Board
 
-<form asp-controller="Board" asp-action="New">
-    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+<h1>Add Board</h1>
 
-    <input type="hidden" asp-for="Id" value="id"/>
-    <input type="hidden" asp-for="ProjectId" value="@ViewBag.ProjectId" />
+<div class="d-flex justify-content-center">
+    <form asp-controller="Board" asp-action="Edit"
+          class="col-6 bg-light p-3 rounded">
+        <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
-    <label asp-for="Name">Board Name</label>
-    <input asp-for="Name" />
+        <input type="hidden" asp-for="Id" value="id"/>
+        <input type="hidden" asp-for="ProjectId" value="@ViewBag.ProjectId" />
 
-    <button type="submit">Add Board</button>
+            <div class="form-floating mb-3">
+            <input asp-for="Name" class="form-control" placeholder="Name"/>
+            <label asp-for="Name">Board Name</label>
+        </div>
+
+
+        <button type="submit" class="btn btn-primary">Add Board</button>
 
 </form>
+</div>
