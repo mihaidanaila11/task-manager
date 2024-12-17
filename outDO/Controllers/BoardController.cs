@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using outDO.Data;
 using outDO.Models;
 
@@ -6,12 +7,20 @@ namespace outDO.Controllers
 {
     public class BoardController : Controller
     {
-        private readonly ApplicationDbContext db;
+        //pas 10 user si roluri
+        
 
-        public BoardController(ApplicationDbContext db)
+        private readonly ApplicationDbContext db;
+        private readonly UserManager<User> userManager;
+        private readonly RoleManager<IdentityRole> roleManager;
+        public BoardController(ApplicationDbContext context,UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager)
         {
-            this.db = db;
+            db = context;
+            userManager = _userManager;
+            roleManager = _roleManager;
         }
+
+
 
         public IActionResult New(string id)
         {

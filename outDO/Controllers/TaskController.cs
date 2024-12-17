@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using outDO.Data;
 using outDO.Models;
 using Task = outDO.Models.Task;
@@ -7,11 +8,17 @@ namespace outDO.Controllers
 {
     public class TaskController : Controller
     {
-        private readonly ApplicationDbContext db;
+        //pas 10 user si roluri
 
-        public TaskController(ApplicationDbContext db)
+
+        private readonly ApplicationDbContext db;
+        private readonly UserManager<User> userManager;
+        private readonly RoleManager<IdentityRole> roleManager;
+        public TaskController(ApplicationDbContext context, UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager)
         {
-            this.db = db;
+            db = context;
+            userManager = _userManager;
+            roleManager = _roleManager;
         }
 
         public IActionResult New(string id)
