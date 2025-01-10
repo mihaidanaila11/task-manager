@@ -55,7 +55,8 @@ namespace outDO.Models
                     string[] allowedHosts = {
                     "www.youtube.com",
                     "youtube.com",
-                    "youtu.be"
+                    "youtu.be",
+                    "www.tiktok.com"
                 };
 
                     if (!allowedHosts.Contains(videoUri.Host))

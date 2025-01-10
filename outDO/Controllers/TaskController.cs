@@ -144,13 +144,12 @@ namespace outDO.Controllers
             }
 
             Task task = db.Tasks.Find(id);
-            ViewBag.Task = task;
 
             return View(task);
         }
 
         [Authorize, HttpPost]
-        public async Task<IActionResult> Edit(string id, [FromForm] Task requestTask, IFormFile Media)
+        public async Task<IActionResult> Edit(string id, [FromForm] Task requestTask, IFormFile? Media)
         {
             Task task = db.Tasks.Find(id);
 
@@ -187,25 +186,35 @@ namespace outDO.Controllers
                     await Media.CopyToAsync(fileStream);
                 }
                 ModelState.Remove(nameof(task.Media));
-                task.Media = databaseFileName;
+                requestTask.Media = databaseFileName;
             }
 
-            try
+            if (TryValidateModel(requestTask))
             {
-                task.Title = requestTask.Title;
-                task.Description = requestTask.Description;
-                task.Status = requestTask.Status;
-                task.DateStart = requestTask.DateStart;
-                task.DateFinish = requestTask.DateFinish;
-                db.SaveChanges();
-                return Redirect("/Board/Show/" + task.BoardId);
-            }
-            catch (Exception)
-            {
-                ViewBag.Project = task;
+                try
+                {
+                    task.Title = requestTask.Title;
+                    task.Description = requestTask.Description;
+                    task.Status = requestTask.Status;
+                    task.DateStart = requestTask.DateStart;
+                    task.DateFinish = requestTask.DateFinish;
+                    task.Media = requestTask.Media;
+                    task.Video = requestTask.Video;
+                    
+                    await db.SaveChangesAsync();
+                    return Redirect("/Board/Show/" + task.BoardId);
+                }
+                catch (Exception)
+                {
+                    ViewBag.Project = task;
 
-                return View();
+                    return View();
+                }
+                
             }
+
+            return View(task);
+
         }
     }
 }

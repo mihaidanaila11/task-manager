@@ -6,16 +6,16 @@
           enctype="multipart/form-data">
         <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
-        <input type="hidden" asp-for="Id" value="@ViewBag.Task.Id" />
-        <input type="hidden" asp-for="BoardId" value="@ViewBag.Task.BoardId" />
+        <input type="hidden" asp-for="Id" value="@Model.Id" />
+        <input type="hidden" asp-for="BoardId" value="@Model.BoardId" />
 
         <div class="form-floating mb-3">
-            <input asp-for="Title" placeholder="Task Title" class="form-control" value="@ViewBag.Task.Title"/>
+            <input asp-for="Title" placeholder="Task Title" class="form-control" value="@Model.Title"/>
             <label asp-for="Title">Task Title</label>
         </div>
 
         <div class="form-floating mb-3 ">
-            <input asp-for="Description" placeholder="Description" class="form-control" value="@ViewBag.Task.Description"></input> 
+            <input asp-for="Description" placeholder="Description" class="form-control" value="@Model.Description"></input> 
             <!--initial era textarea insa nu mergea value!-->
             <label asp-for="Description">Description</label>
         </div>
@@ -46,12 +46,12 @@
         <div class="form-group d-flex justify-content-around mb-3">
             <div class="d-inline-block">
                 <label asp-for="DateStart" class="text-muted form-cont">Start Date</label>
-                <input type="date" asp-for="DateStart" value="@ViewBag.Task.DateStart.ToString("yyyy-MM-dd")" />
+                <input type="date" asp-for="DateStart" value="@Model.DateStart.Value.ToString("yyyy-MM-dd")" />
             </div>
 
             <div class="d-inline-block">
                 <label asp-for="DateFinish" class="text-muted">Finish Date</label>
-                <input type="date" asp-for="DateFinish" value="@ViewBag.Task.DateFinish.ToString("yyyy-MM-dd")" />
+                <input type="date" asp-for="DateFinish" value="@Model.DateFinish.Value.ToString("yyyy-MM-dd")" />
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Edit Task</button>
