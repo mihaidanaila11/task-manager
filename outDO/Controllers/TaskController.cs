@@ -96,7 +96,7 @@ namespace outDO.Controllers
             Task task = db.Tasks.Find(id);
             ViewBag.Task = task;
 
-            return View();
+            return View(task);
         }
 
         [Authorize, HttpPost]

@@ -18,7 +18,7 @@ namespace outDO.Controllers
             _logger = logger;
         }
 
-        // Private page for authorized users
+        // pagina pentru utilizatorii autentificati 
         [Authorize]
         public IActionResult Index()
         {
@@ -26,7 +26,7 @@ namespace outDO.Controllers
             return View();
         }
 
-        // Public page for anonymous users
+        // pagina pentru utilizatorii neautentificati
         public IActionResult Presentation()
         {
             return View();
