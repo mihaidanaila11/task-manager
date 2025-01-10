@@ -32,9 +32,10 @@
                 <h4>Status: @task.Status</h4>
                 <p>Start date @task.DateStart.ToString("dd/MM/yyyy/")</p>
                 <p>Deadline: @task.DateFinish.ToString("dd/MM/yyyy/")</p>
-                <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@task.Id">Delete Task</a>
-                <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@task.Id">Edit Task</a>
-            
+                @if (isAuthorized){
+                    <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@task.Id">Delete Task</a>
+                    <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@task.Id">Edit Task</a>
+                }
         </div>
     </div>
 }

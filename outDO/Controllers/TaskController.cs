@@ -92,9 +92,25 @@ namespace outDO.Controllers
             {
                 return StatusCode(403);
             }
-
+            
             Task task = db.Tasks.Find(id);
             ViewBag.Task = task;
+
+            //membrii proiectului care nu sunt deja assigned la task
+            /*var ProjectMembers = (from t in db.Tasks
+                          join b in db.Boards on
+                          t.BoardId equals b.Id
+                          join pm in db.ProjectMembers on
+                            b.ProjectId equals pm.ProjectId
+                            join u in db.Users on
+                            pm.UserId equals u.Id
+                                  where t.Id == id
+                          where !t.TaskMembers.Contains(pm.User)
+                            select new
+                            { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.ProjectMembers = ProjectMembers;*/
+
 
             return View(task);
         }

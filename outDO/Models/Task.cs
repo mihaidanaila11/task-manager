@@ -24,6 +24,8 @@ namespace outDO.Models
         //poze
         public string? Media {  get; set; }
 
+        public virtual ICollection<User>? TaskMembers { get; set; } //membrii assigned task-ului
+
         public virtual Board? Board { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

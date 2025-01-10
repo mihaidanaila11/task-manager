@@ -33,12 +33,13 @@ namespace outDO.Services
                 return false;
             }
 
-            if (usersId.First() != userId)
+            if (usersId.Contains(userId))
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
+
         }
 
         public bool isUserOrganiserBoard(string boardId, string userId)
@@ -52,17 +53,17 @@ namespace outDO.Services
                           where pm.ProjectRole == "Organizator"
                           select pm.UserId;
 
-            if (!usersId.Any()) //imi dadea eroare ca era gol usersID si nu puteam face First()
+            if (!usersId.Any())
             {
                 return false;
             }
 
-            if (usersId.First() != userId)
+            if (usersId.Contains(userId))
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
 
