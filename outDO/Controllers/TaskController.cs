@@ -108,6 +108,7 @@ namespace outDO.Controllers
             {
                 task.Title = requestTask.Title;
                 task.Description = requestTask.Description;
+                task.Status = requestTask.Status;
                 task.DateStart = requestTask.DateStart;
                 task.DateFinish = requestTask.DateFinish;
                 db.SaveChanges();
