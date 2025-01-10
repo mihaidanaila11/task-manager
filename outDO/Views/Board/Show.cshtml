@@ -29,6 +29,11 @@
             @if(@task.Description != null){
                 <p>@task.Description</p>
             }
+
+                @if(task.Media != null)
+                {
+                    <img src="@task.Media" class="img-thumbnail" />
+                }
                 <h4>Status: @task.Status</h4>
                 <p>Start date @task.DateStart.ToString("dd/MM/yyyy/")</p>
                 <p>Deadline: @task.DateFinish.ToString("dd/MM/yyyy/")</p>

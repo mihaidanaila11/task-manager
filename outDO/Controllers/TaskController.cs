@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using outDO.Data;
 using outDO.Models;
+using static System.Net.Mime.MediaTypeNames;
+using System.Linq;
+using System.Net.NetworkInformation;
 using Task = outDO.Models.Task;
 
 namespace outDO.Controllers
@@ -15,11 +18,14 @@ namespace outDO.Controllers
         private readonly ApplicationDbContext db;
         private readonly UserManager<User> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
-        public TaskController(ApplicationDbContext context, UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager)
+        private readonly IWebHostEnvironment _env;
+        public TaskController(ApplicationDbContext context, UserManager<User> _userManager, 
+            RoleManager<IdentityRole> _roleManager, IWebHostEnvironment env)
         {
             db = context;
             userManager = _userManager;
             roleManager = _roleManager;
+            _env = env;
         }
 
         [Authorize]
@@ -31,15 +37,51 @@ namespace outDO.Controllers
         }
 
         [HttpPost]
-        public IActionResult New([FromForm] Task task)
+        public async Task<IActionResult> New([FromForm] Task task, IFormFile Media)
         {
             string id = Guid.NewGuid().ToString();
             task.Id = id;
 
-            if (ModelState.IsValid)
+            if (Media != null && Media.Length > 0)
+            {
+                // Verificam extensia
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif"};
+                var fileExtension = Path.GetExtension(Media.FileName).ToLower();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    ModelState.AddModelError("ArticleImage", "Fisierul trebuie sa fie o imagine (jpg, jpeg, png, gif)");
+                    return View(task);
+                }
+
+                // Cale stocare
+
+                // Folosim un time signature unic pt fiecare poza
+                // pentru a avea nume diferite la fiecare upload
+                // Asa evitam sa se incarce poza veche dupa un edit (ar lua-o pe cea din cache)
+                string timeSignature = DateTime.Now.Ticks.ToString();
+
+                var storagePath = Path.Combine(_env.WebRootPath, "images",
+                id + timeSignature + fileExtension);
+
+                //  Nume unic pentru fiecare task
+                //  Daca pastrez numele fisierului original exista probleme
+                //  atunci cand vreau sa folosesc o poza diferita dar cu acelasi nume
+                //  => se va folosi prima poza cu acelasi nume
+                var databaseFileName = "/images/" + id + timeSignature + fileExtension;
+
+                // Salvare fisier
+                using (var fileStream = new FileStream(storagePath, FileMode.Create))
+                {
+                    await Media.CopyToAsync(fileStream);
+                }
+                ModelState.Remove(nameof(task.Media));
+                task.Media = databaseFileName;
+            }
+
+            if (TryValidateModel(task))
             {
                 db.Tasks.Add(task);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
 
                 return Redirect("/Board/Show/" + task.BoardId);
             }
@@ -78,6 +120,14 @@ namespace outDO.Controllers
             }
 
             Task task = db.Tasks.Find(id);
+
+            if (task.Media != null)
+            {
+                var storagePath = Path.Combine(_env.WebRootPath + task.Media);
+
+                System.IO.File.Delete(storagePath);
+            }
+
             string boardId = task.BoardId;
             db.Tasks.Remove(task);
             db.SaveChanges();
@@ -100,9 +150,45 @@ namespace outDO.Controllers
         }
 
         [Authorize, HttpPost]
-        public IActionResult Edit(string id, [FromForm] Task requestTask)
+        public async Task<IActionResult> Edit(string id, [FromForm] Task requestTask, IFormFile Media)
         {
             Task task = db.Tasks.Find(id);
+
+            if (Media != null && Media.Length > 0)
+            {
+                // Verificam extensia
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                var fileExtension = Path.GetExtension(Media.FileName).ToLower();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    ModelState.AddModelError("ArticleImage", "Fisierul trebuie sa fie o imagine (jpg, jpeg, png, gif)");
+                    return View(task);
+                }
+
+                // Stergem poza veche
+                var storagePath = Path.Combine(_env.WebRootPath + task.Media);
+                System.IO.File.Delete(storagePath);
+
+                // Cale stocare
+                string timeSignature = DateTime.Now.Ticks.ToString();
+
+                storagePath = Path.Combine(_env.WebRootPath, "images",
+                id + timeSignature + fileExtension);
+
+                //  Nume unic pentru fiecare task
+                //  Daca pastrez numele fisierului original exista probleme
+                //  atunci cand vreau sa folosesc o poza diferita dar cu acelasi nume
+                //  => se va folosi prima poza cu acelasi nume
+                var databaseFileName = "/images/" + id + timeSignature + fileExtension;
+
+                // Salvare fisier
+                using (var fileStream = new FileStream(storagePath, FileMode.Create))
+                {
+                    await Media.CopyToAsync(fileStream);
+                }
+                ModelState.Remove(nameof(task.Media));
+                task.Media = databaseFileName;
+            }
 
             try
             {

@@ -2,7 +2,8 @@
     <h1>Add task</h1>
     <div class="d-flex justify-content-center">
         <form asp-controller="Task" asp-action="New" 
-        class="col-6 bg-light p-3 rounded">
+        class="col-6 bg-light p-3 rounded"
+        enctype="multipart/form-data">
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
             <input type="hidden" asp-for="Id" value="id" />
@@ -29,6 +30,12 @@
         </div>
 
         <br>
+
+        <div class="form-group">
+            <label asp-for="Media">Load Image</label>
+            <input asp-for="Media" class="form-control" type="file" />
+            <span asp-validation-for="Media" class="text-danger"></span>
+        </div>
 
         <div class="form-group d-flex justify-content-around mb-3">
                 <div class="d-inline-block">
