@@ -24,8 +24,12 @@ namespace outDO.Models
         //poze
         public string? Media {  get; set; }
 
+
         // Suport doar pentru clipuri pe youtube
         public string? Video { get; set; }
+
+        public virtual ICollection<User>? TaskMembers { get; set; } //membrii assigned task-ului
+
 
         public virtual Board? Board { get; set; }
 

@@ -1,9 +1,13 @@
-﻿@model outDO.Models.Task
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> UserManager
+@model outDO.Models.Task
 <h1>Edit task</h1>
 <div class="d-flex justify-content-center">
     <form asp-controller="Task" asp-action="Edit"
+
           class="col-6 bg-light p-3 rounded"
           enctype="multipart/form-data">
+
         <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
         <input type="hidden" asp-for="Id" value="@Model.Id" />
@@ -15,7 +19,9 @@
         </div>
 
         <div class="form-floating mb-3 ">
+
             <input asp-for="Description" placeholder="Description" class="form-control" value="@Model.Description"></input> 
+
             <!--initial era textarea insa nu mergea value!-->
             <label asp-for="Description">Description</label>
         </div>
@@ -31,6 +37,7 @@
 
         <br />
 
+
         <div class="form-group">
             <label asp-for="Media">Load Image</label>
             <input asp-for="Media" class="form-control" type="file" />
@@ -43,6 +50,7 @@
             <span asp-validation-for="Video" class="text-danger"></span>
         </div>
         
+
         <div class="form-group d-flex justify-content-around mb-3">
             <div class="d-inline-block">
                 <label asp-for="DateStart" class="text-muted form-cont">Start Date</label>
@@ -54,7 +62,38 @@
                 <input type="date" asp-for="DateFinish" value="@Model.DateFinish.Value.ToString("yyyy-MM-dd")" />
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">Edit Task</button>
 
+
+        <!--afisam toti membrii asigned proiectului-->
+        <div>
+            @if (ViewBag.TaskMembers.Count > 0)
+            {
+                <p>Task Members:</p>
+            }
+            @foreach (var taskMember in ViewBag.TaskMembers)
+            {   <p>
+                    <a class="btn btn-dark mb-3" asp-controller="Task" asp-action="RemoveMember"
+                       asp-route-id="@Model.Id" asp-route-userId="@taskMember.Id">Unnasign from Task</a>
+                    <a>@taskMember.Email @taskMember.UserName</a>
+                </p>
+            }
+        </div>
+
+        <!--afisam restul membrilor proiecxtului-->
+        <div>
+            @if (ViewBag.ProjectMembers.Count > 0)
+            {
+				<p>Project Members:</p>
+            }
+            @foreach (var projectMember in ViewBag.ProjectMembers)
+            {   <p>
+                    <a class="btn btn-dark mb-3" asp-controller="Task" asp-action="AddMember"
+                       asp-route-id="@Model.Id" asp-route-userId="@projectMember.Id">Assign to Task</a>
+				    <a>@projectMember.Email @projectMember.UserName</a>
+                </p>
+            }
+        </div>
+
+        <button type="submit" class="btn btn-primary">Edit Task</button>
     </form>
 </div>

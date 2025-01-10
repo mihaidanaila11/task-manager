@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using outDO.Data;
 using outDO.Models;
 using static System.Net.Mime.MediaTypeNames;
@@ -143,8 +144,39 @@ namespace outDO.Controllers
             {
                 return StatusCode(403);
             }
-
+            
             Task task = db.Tasks.Find(id);
+
+            //membrii proiectului care nu sunt deja assigned la task
+            var ProjectMembers = (from t in db.Tasks
+                          join b in db.Boards on
+                          t.BoardId equals b.Id
+                          join pm in db.ProjectMembers on
+                            b.ProjectId equals pm.ProjectId
+                            join u in db.Users on
+                            pm.UserId equals u.Id
+                                  where t.Id == id
+                          where !t.TaskMembers.Contains(pm.User)
+                            select new
+                            { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.ProjectMembers = ProjectMembers;
+
+            //membrii taskului
+            var TaskMembers = (from t in db.Tasks
+                                  join b in db.Boards on
+                                  t.BoardId equals b.Id
+                                  join pm in db.ProjectMembers on
+                                    b.ProjectId equals pm.ProjectId
+                                  join u in db.Users on
+                                  pm.UserId equals u.Id
+                                  where t.Id == id
+                                  where t.TaskMembers.Contains(pm.User)
+                                  select new
+                                  { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.TaskMembers = TaskMembers;
+
 
             return View(task);
         }
@@ -192,6 +224,7 @@ namespace outDO.Controllers
 
             if (TryValidateModel(requestTask))
             {
+
                 try
                 {
                     task.Title = requestTask.Title;
@@ -208,6 +241,9 @@ namespace outDO.Controllers
                 catch (Exception)
                 {
                     ViewBag.Project = task;
+
+                ViewBag.Task = task;
+
 
                     return View();
                 }
@@ -255,6 +291,27 @@ namespace outDO.Controllers
             ViewBag.comments = comments;
 
             return View(task);
+        }
+
+        public IActionResult AddMember(string id, string userId)
+        {
+            Task task = db.Tasks.Find(id);
+            if (task.TaskMembers == null)
+            {
+                task.TaskMembers = new List<User>();  // or whatever your User type is
+            }
+            task.TaskMembers.Add(db.Users.Find(userId));
+            db.SaveChanges();
+            return Redirect("/Task/Edit/" + id);
+        }
+
+        public IActionResult RemoveMember(string id, string userId)
+        {
+            Task task = db.Tasks.Include(t => t.TaskMembers).FirstOrDefault(t => t.Id == id);
+            //ca sa incarce si TaskMembers
+            task.TaskMembers.Remove(db.Users.Find(userId));
+            db.SaveChanges();
+            return Redirect("/Task/Edit/" + id);
         }
     }
 }

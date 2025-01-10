@@ -67,7 +67,7 @@ namespace outDO.Controllers
             string id = Guid.NewGuid().ToString();
             project.Id = id;
 
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 db.Projects.Add(project);
 
@@ -116,27 +116,28 @@ namespace outDO.Controllers
             return View(project);
         }
 
-        private bool isUserAuthorized(string projectId) //daca este organizatorul proiectului
+        private bool isUserAuthorized(string projectId, string userId) //daca este organizatorul proiectului
         {
-            var userId = from p in db.Projects
-                         join pm in db.ProjectMembers on
-                         p.Id equals pm.ProjectId
-                         where p.Id == projectId
-                         where pm.ProjectRole == "Organizator"
-                         select pm.UserId;
-            if (userId.First() != userManager.GetUserId(User))
+            var userIds = from p in db.Projects
+                          join pm in db.ProjectMembers on
+                          p.Id equals pm.ProjectId
+                          where p.Id == projectId
+                          where pm.ProjectRole == "Organizator"
+                          select pm.UserId;
+
+            if (userIds.Contains(userId))
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
-     
+
         [Authorize]
-        public IActionResult Delete(string id)
+        public IActionResult Delete(string id, string userId)
         {
-            if (!isUserAuthorized(id))
+            if (!isUserAuthorized(id, userId))
             {
                 return StatusCode(403);
             }
@@ -150,9 +151,9 @@ namespace outDO.Controllers
         }
 
         [Authorize]
-        public IActionResult Edit(string id)
+        public IActionResult Edit(string id, string userId)
         {
-            if (!isUserAuthorized(id))
+            if (!isUserAuthorized(id, userId))
             {
                 return StatusCode(403);
             }
@@ -186,5 +187,111 @@ namespace outDO.Controllers
         {   //ne intoarcem la toate proiectele
             return RedirectToAction("Index");
         }
+
+        public IActionResult AddMembers(string id, string userId)
+        {
+            var thisUserEmail = (from p in db.Projects
+                            join pm in db.ProjectMembers on
+                            p.Id equals pm.ProjectId
+                            join u in db.Users on
+                            pm.UserId equals u.Id
+                            where p.Id == id
+                            where u.Id == userId //sigur e organizator deci nu mai verific
+                            select u.Email).FirstOrDefault();
+            ViewBag.ThisUserEmail = thisUserEmail;
+
+            //organizatorii inafara de user ca il pun separat
+            var organisers = (from p in db.Projects
+                              join pm in db.ProjectMembers on
+                              p.Id equals pm.ProjectId
+                              join u in db.Users on
+                              pm.UserId equals u.Id
+                              where p.Id == id
+                              where u.Id != userId
+                              where pm.ProjectRole == "Organizator"
+                              select new
+                              { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.Organisers = organisers;
+
+            var members = (from p in db.Projects
+                           join pm in db.ProjectMembers on
+                           p.Id equals pm.ProjectId
+                           join u in db.Users on
+                           pm.UserId equals u.Id
+                           where p.Id == id
+                           where pm.ProjectRole != "Organizator"
+                           select new
+                           { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.Members = members;
+
+            var allUsers = (from u in db.Users
+                            select new
+                            { u.Id, u.UserName, u.Email }).ToList();
+
+            var nonMembers = (from u in allUsers
+                              where !members.Contains(u)
+                              where !organisers.Contains(u)
+                              where u.Id != userId
+                              select new
+                              { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.nonMembers = nonMembers;
+
+            var project = db.Projects.Find(id);
+            return View(project);
+        }
+
+        public IActionResult AddOrganiser(string id, string userId, string memberId)
+        {
+            //el e deja membru deci trb sa il gasesc si sa il modific
+            var projectMember = db.ProjectMembers.Find(memberId, id);
+            projectMember.ProjectRole = "Organizator";
+            db.SaveChanges(); 
+            return RedirectToAction("AddMembers", new { id = id, userId = userId });
+        }
+
+        public IActionResult AddMember(string id, string userId, string memberId)
+        {
+            ProjectMember projectMember = new ProjectMember();
+            projectMember.ProjectId = id;
+            projectMember.UserId = memberId;
+            db.ProjectMembers.Add(projectMember);
+            db.SaveChanges();
+            return RedirectToAction("AddMembers", new { id = id, userId = userId });
+        }
+
+        public IActionResult RemoveOrganiser(string id, string userId)
+        {
+            //verificam sa nu fie un singur organizator
+            var organisers = (from p in db.Projects
+                              join pm in db.ProjectMembers on
+                              p.Id equals pm.ProjectId
+                              where p.Id == id
+                              where pm.ProjectRole == "Organizator"
+                              select pm.UserId).ToList();
+
+            if (organisers.Count <= 1)
+            {
+                TempData["AlertMessage"] = "The project must have at least one organiser. Assign a different organiser if you wish to step down";
+                return RedirectToAction("AddMembers", new { id = id, userId = userId });
+            }
+
+            var projectMember = db.ProjectMembers.Find(userId, id);
+            projectMember.ProjectRole = "Member";
+            db.SaveChanges();
+            return RedirectToAction("Index");
+
+        }
+    
+        public IActionResult RemoveMember(string id, string userId, string memberId)
+        {
+            var projectMember = db.ProjectMembers.Find(memberId, id);
+            db.ProjectMembers.Remove(projectMember);
+            db.SaveChanges();
+            return RedirectToAction("AddMembers", new { id = id, userId = userId });
+        }
+
     }
 }
