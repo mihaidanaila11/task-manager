@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using outDO.Services
+@using outDO.Models
+@inject UserManager<User> UserManager
+@inject IProjectService ProjectService
+@model outDO.Models.Project
+
+<h2>@Model.Name</h2>
+<hr />
+
+<a class="btn btn-success mb-3" asp-controller="Project" asp-action="GoBack" >Go Back</a>
+
+<!-- daca e organizator are access-->
+@{
+    var isAuthorized = ProjectService.isUserOrganiserProject(@Model.Id, UserManager.GetUserId(User));
+}
+
+@if (isAuthorized)
+{
+    <a class="btn btn-success mb-3" asp-controller="Board" asp-action="New" asp-route-id="@Model.Id">Add Board</a>
+}
+
+<h3>Boards</h3>
+<div class="d-flex justify-content-around mt-3">
+@foreach (var board in ViewBag.Boards)
+{
+    <div class="card col-3 text-center">
+        <div class="m-3">
+            <h4>@board.Name</h4>
+            <a class="btn btn-success" asp-controller="Board" asp-action="Show" asp-route-id="@board.Id">View Board</a>
+            
+                <!-- daca e organizator poate sa stearga sau sa editeze-->
+                @if (isAuthorized)
+            {
+                <a class="btn btn-danger" asp-controller="Board" asp-action="Delete" asp-route-id="@board.Id">Delete Board</a>
+
+                <a class="btn btn-warning" asp-controller="Board" asp-action="Edit" asp-route-id="@board.Id">Edit Project</a>
+            }
+        </div>
+    </div>
+    
+}
+</div>
+
