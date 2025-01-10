@@ -21,23 +21,57 @@
 
 <h3>Tasks</h3>
 <div class="d-flex justify-content-around mt-3">
-@foreach (var task in ViewBag.Tasks)
-{
-    <div class="card col-3 text-center">
-        <div class="m-3">
-            <h4>@task.Title</h4>
-            @if(@task.Description != null){
-                <p>@task.Description</p>
-            }
+    @foreach (var task in ViewBag.Tasks)
+    {
+        <div class="card col-3 text-center">
+            <div class="m-3">
+                <h4>@task.Title</h4>
+                @if(@task.Description != null)
+                {
+                    <p>@task.Description</p>
+                }
                 <h4>Status: @task.Status</h4>
                 <p>Start date @task.DateStart.ToString("dd/MM/yyyy/")</p>
                 <p>Deadline: @task.DateFinish.ToString("dd/MM/yyyy/")</p>
-                @if (isAuthorized){
+                @if (isAuthorized)
+                {
                     <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@task.Id">Delete Task</a>
                     <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@task.Id">Edit Task</a>
                 }
+
+                <hr />
+                @if (task.TaskMembers != null && task.TaskMembers.Count >0)
+                {
+                    <p>Members:</p>
+                    <ul>
+                        @{
+                            var index = 0;
+                            foreach (var member in task.TaskMembers)
+                            {
+                                if(index<3)
+                                {
+                                    index += 1;
+                                    <p>@member.UserName</p>
+                                }
+                                else
+                                {
+                                    <p>+more</p>
+                                    break;
+                                }
+                        }   
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No members assigned</p>
+            }
+
         </div>
     </div>
 }
+
 </div>
 
+
+ 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using outDO.Data;
 using outDO.Models;
 
@@ -54,7 +55,10 @@ namespace outDO.Controllers
         {
             Board board = db.Boards.Where(b => b.Id == id).First();
 
-            var tasks = db.Tasks.Where(t => t.BoardId == board.Id).ToList();
+            var tasks = db.Tasks
+            .Include(t => t.TaskMembers)
+            .Where(t => t.BoardId == board.Id)
+            .ToList();
             ViewBag.Tasks = tasks;
 
             return View(board);

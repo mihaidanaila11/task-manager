@@ -1,4 +1,6 @@
-﻿@model outDO.Models.Task
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> UserManager
+@model outDO.Models.Task
 <h1>Edit task</h1>
 <div class="d-flex justify-content-center">
     <form asp-controller="Task" asp-action="Edit"
@@ -44,14 +46,35 @@
 
 
         <!--afisam toti membrii asigned proiectului-->
+        <div>
+            @if (ViewBag.TaskMembers.Count > 0)
+            {
+                <p>Task Members:</p>
+            }
+            @foreach (var taskMember in ViewBag.TaskMembers)
+            {   <p>
+                    <a class="btn btn-dark mb-3" asp-controller="Task" asp-action="RemoveMember"
+                       asp-route-id="@Model.Id" asp-route-userId="@taskMember.Id">Unnasign from Task</a>
+                    <a>@taskMember.Email @taskMember.UserName</a>
+                </p>
+            }
+        </div>
 
         <!--afisam restul membrilor proiecxtului-->
-        @* <div class="form-group d-flex justify-content-around mb-3">
-            @foreach (var projectMember in ViewBag.ProjectMembers)
+        <div>
+            @if (ViewBag.ProjectMembers.Count > 0)
             {
-				<a>@projectMember.Email @projectMember.UserName</a>
+				<p>Project Members:</p>
             }
-        </div> *@
+            @foreach (var projectMember in ViewBag.ProjectMembers)
+            {   <p>
+                    <a class="btn btn-dark mb-3" asp-controller="Task" asp-action="AddMember"
+                       asp-route-id="@Model.Id" asp-route-userId="@projectMember.Id">Assign to Task</a>
+				    <a>@projectMember.Email @projectMember.UserName</a>
+                </p>
+            }
+        </div>
+
         <button type="submit" class="btn btn-primary">Edit Task</button>
     </form>
 </div>
