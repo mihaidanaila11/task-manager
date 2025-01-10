@@ -4,6 +4,7 @@
 @inject UserManager<User> UserManager
 @inject IProjectService ProjectService
 @model outDO.Models.Board
+@using Newtonsoft.Json
 
 @{
     var isAuthorized = ProjectService.isUserOrganiserBoard(@Model.Id, UserManager.GetUserId(User));
@@ -37,7 +38,12 @@
                 {
                     <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@task.Id">Delete Task</a>
                     <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@task.Id">Edit Task</a>
+                    
                 }
+
+                <a class="btn btn-success" asp-controller="Task" asp-action="Show" asp-route-id="@task.Id">View Task</a>
+
+
 
                 <hr />
                 @if (task.TaskMembers != null && task.TaskMembers.Count >0)
@@ -66,6 +72,37 @@
             {
                 <p>No members assigned</p>
             }
+      <hr />
+
+ @if (task.Media != null)
+                {
+                    <img src="@task.Media" class="img-thumbnail" />
+                }
+
+                @if (task.Video != null)
+                {
+                    <div class="embed-responsive embed-responsive-16by9">
+                        @{
+                            if (ViewBag.videoEmbLinks[task.Id].Item1 == "youtube")
+                            {
+
+                                <iframe class="embed-responsive-item mt-3"
+                                        src="@ViewBag.videoEmbLinks[task.Id].Item2"
+                                        title="YouTube video player"
+                                frameborder="0"></iframe>
+
+                            }
+                            else if (ViewBag.videoEmbLinks[task.Id].Item1 == "tiktok")
+                            {
+                                // var requestResponse = new Microsoft.AspNetCore.Html.HtmlString((ViewBag.videoEmbLinks[task.Id].Item2));
+                                var requestResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(ViewBag.videoEmbLinks[task.Id].Item2);
+
+                                var tiktokEmbeded = new Microsoft.AspNetCore.Html.HtmlString(requestResponse["html"]);
+                                <div>@tiktokEmbeded</div>
+                            }
+                        }
+                    </div>
+                }
 
         </div>
     </div>
@@ -73,5 +110,3 @@
 
 </div>
 
-
- 

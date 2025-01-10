@@ -1,0 +1,41 @@
+﻿@model outDO.Models.Task
+@using outDO.Models
+
+<div class="container h-100 d-flex justify-content-center">
+    <div class="col-10 justify-content-center bg-light p-3 rounded">
+        <h1>@Model.Title</h1>
+        <hr />
+        <h3>Status</h3>
+        <p>@Model.Status</p>
+        <h3>Description</h3>
+        <p>@Model.Description</p>
+
+        <div class="d-flex justify-content-around">
+            <p class="d-inline"><strong>Start date</strong> @Model.DateStart.Value.ToString("dd/MM/yyyy/")</p>
+            <p class="d-inline"><strong>Deadline</strong>: @Model.DateFinish.Value.ToString("dd/MM/yyyy/")</p>
+        </div>
+
+        <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@Model.Id">Delete Task</a>
+        <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@Model.Id">Edit Task</a>
+        <hr />
+
+        <h3 class="mt-5">Comments</h3>
+        <form asp-controller="Task" asp-action="Show" asp-route-id="@Model.Id" method="post"
+              class="col-6 bg-light p-3 rounded">
+            <div>
+                <input type="hidden" name="TaskId" value="@Model.Id" />
+                <partial name="CommentForm" model="null"/>
+            </div>
+        </form>
+        
+        @foreach(var com in Model.Comments)
+        {
+            <div class="card mt-3">
+                <div class="card-body">
+                    @com.Content
+                </div>
+            </div>
+        }
+    </div>
+
+</div>

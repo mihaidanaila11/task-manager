@@ -5,9 +5,9 @@ namespace outDO.Models
     public class Comment
     {
         [Key]
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Required]
-        public int? TaskId { get; set; }
+        public string? TaskId { get; set; }
         [Required]
         public string? UserId { get; set; }
         [Required]

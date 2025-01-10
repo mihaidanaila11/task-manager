@@ -4,7 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using outDO.Data;
 using outDO.Models;
+using static System.Net.Mime.MediaTypeNames;
+using System.Linq;
+using System.Net.NetworkInformation;
 using Task = outDO.Models.Task;
+using System.Threading.Tasks;
 
 namespace outDO.Controllers
 {
@@ -16,11 +20,14 @@ namespace outDO.Controllers
         private readonly ApplicationDbContext db;
         private readonly UserManager<User> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
-        public TaskController(ApplicationDbContext context, UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager)
+        private readonly IWebHostEnvironment _env;
+        public TaskController(ApplicationDbContext context, UserManager<User> _userManager, 
+            RoleManager<IdentityRole> _roleManager, IWebHostEnvironment env)
         {
             db = context;
             userManager = _userManager;
             roleManager = _roleManager;
+            _env = env;
         }
 
         [Authorize]
@@ -32,15 +39,51 @@ namespace outDO.Controllers
         }
 
         [HttpPost]
-        public IActionResult New([FromForm] Task task)
+        public async Task<IActionResult> New([FromForm] Task task, IFormFile? Media)
         {
             string id = Guid.NewGuid().ToString();
             task.Id = id;
 
-            if (ModelState.IsValid)
+            if (Media != null && Media.Length > 0)
+            {
+                // Verificam extensia
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif"};
+                var fileExtension = Path.GetExtension(Media.FileName).ToLower();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    ModelState.AddModelError("ArticleImage", "Fisierul trebuie sa fie o imagine (jpg, jpeg, png, gif)");
+                    return View(task);
+                }
+
+                // Cale stocare
+
+                // Folosim un time signature unic pt fiecare poza
+                // pentru a avea nume diferite la fiecare upload
+                // Asa evitam sa se incarce poza veche dupa un edit (ar lua-o pe cea din cache)
+                string timeSignature = DateTime.Now.Ticks.ToString();
+
+                var storagePath = Path.Combine(_env.WebRootPath, "images",
+                id + timeSignature + fileExtension);
+
+                //  Nume unic pentru fiecare task
+                //  Daca pastrez numele fisierului original exista probleme
+                //  atunci cand vreau sa folosesc o poza diferita dar cu acelasi nume
+                //  => se va folosi prima poza cu acelasi nume
+                var databaseFileName = "/images/" + id + timeSignature + fileExtension;
+
+                // Salvare fisier
+                using (var fileStream = new FileStream(storagePath, FileMode.Create))
+                {
+                    await Media.CopyToAsync(fileStream);
+                }
+                ModelState.Remove(nameof(task.Media));
+                task.Media = databaseFileName;
+            }
+
+            if (TryValidateModel(task))
             {
                 db.Tasks.Add(task);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
 
                 return Redirect("/Board/Show/" + task.BoardId);
             }
@@ -79,6 +122,14 @@ namespace outDO.Controllers
             }
 
             Task task = db.Tasks.Find(id);
+
+            if (task.Media != null)
+            {
+                var storagePath = Path.Combine(_env.WebRootPath + task.Media);
+
+                System.IO.File.Delete(storagePath);
+            }
+
             string boardId = task.BoardId;
             db.Tasks.Remove(task);
             db.SaveChanges();
@@ -95,7 +146,6 @@ namespace outDO.Controllers
             }
             
             Task task = db.Tasks.Find(id);
-            ViewBag.Task = task;
 
             //membrii proiectului care nu sunt deja assigned la task
             var ProjectMembers = (from t in db.Tasks
@@ -132,26 +182,115 @@ namespace outDO.Controllers
         }
 
         [Authorize, HttpPost]
-        public IActionResult Edit(string id, [FromForm] Task requestTask)
+        public async Task<IActionResult> Edit(string id, [FromForm] Task requestTask, IFormFile? Media)
         {
             Task task = db.Tasks.Find(id);
 
-            try
+            if (Media != null && Media.Length > 0)
             {
-                task.Title = requestTask.Title;
-                task.Description = requestTask.Description;
-                task.Status = requestTask.Status;
-                task.DateStart = requestTask.DateStart;
-                task.DateFinish = requestTask.DateFinish;
-                db.SaveChanges();
-                return Redirect("/Board/Show/" + task.BoardId);
+                // Verificam extensia
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                var fileExtension = Path.GetExtension(Media.FileName).ToLower();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    ModelState.AddModelError("ArticleImage", "Fisierul trebuie sa fie o imagine (jpg, jpeg, png, gif)");
+                    return View(task);
+                }
+
+                // Stergem poza veche
+                var storagePath = Path.Combine(_env.WebRootPath + task.Media);
+                System.IO.File.Delete(storagePath);
+
+                // Cale stocare
+                string timeSignature = DateTime.Now.Ticks.ToString();
+
+                storagePath = Path.Combine(_env.WebRootPath, "images",
+                id + timeSignature + fileExtension);
+
+                //  Nume unic pentru fiecare task
+                //  Daca pastrez numele fisierului original exista probleme
+                //  atunci cand vreau sa folosesc o poza diferita dar cu acelasi nume
+                //  => se va folosi prima poza cu acelasi nume
+                var databaseFileName = "/images/" + id + timeSignature + fileExtension;
+
+                // Salvare fisier
+                using (var fileStream = new FileStream(storagePath, FileMode.Create))
+                {
+                    await Media.CopyToAsync(fileStream);
+                }
+                ModelState.Remove(nameof(task.Media));
+                requestTask.Media = databaseFileName;
             }
-            catch (Exception)
+
+            if (TryValidateModel(requestTask))
             {
+
+                try
+                {
+                    task.Title = requestTask.Title;
+                    task.Description = requestTask.Description;
+                    task.Status = requestTask.Status;
+                    task.DateStart = requestTask.DateStart;
+                    task.DateFinish = requestTask.DateFinish;
+                    task.Media = requestTask.Media;
+                    task.Video = requestTask.Video;
+                    
+                    await db.SaveChangesAsync();
+                    return Redirect("/Board/Show/" + task.BoardId);
+                }
+                catch (Exception)
+                {
+                    ViewBag.Project = task;
+
                 ViewBag.Task = task;
 
-                return View();
+
+                    return View();
+                }
+                
             }
+
+            return View(task);
+
+        }
+
+        [HttpGet]
+        public IActionResult Show(string Id)
+        {
+            var task = db.Tasks.Where(t => t.Id == Id).First();
+            var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
+
+            ViewBag.comments = comments;
+
+
+            return View(task);
+        }
+
+        [HttpPost]
+        public IActionResult Show(string Id, [FromForm] Comment comment)
+        {
+            
+
+            string commentId = Guid.NewGuid().ToString();
+            ModelState.Remove(nameof(comment.Id));
+            ModelState.Remove(nameof(comment.TaskId));
+            ModelState.Remove(nameof(comment.UserId));
+            comment.Id = commentId;
+            comment.TaskId = Id;
+            comment.UserId = userManager.GetUserId(User).ToString();
+
+            if(TryValidateModel(comment))
+            {
+                db.Comments.Add(comment);
+                db.SaveChanges();
+            }
+
+            var task = db.Tasks.Where(t => t.Id == Id).First();
+            var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
+
+            ViewBag.comments = comments;
+
+            return View(task);
         }
 
         public IActionResult AddMember(string id, string userId)

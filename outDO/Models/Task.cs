@@ -24,9 +24,16 @@ namespace outDO.Models
         //poze
         public string? Media {  get; set; }
 
+
+        // Suport doar pentru clipuri pe youtube
+        public string? Video { get; set; }
+
         public virtual ICollection<User>? TaskMembers { get; set; } //membrii assigned task-ului
 
+
         public virtual Board? Board { get; set; }
+
+        public virtual ICollection<Comment>? Comments { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -35,7 +42,37 @@ namespace outDO.Models
                 yield return new ValidationResult("The start date has to be before the finish date");
             }
 
-            
+            if(Video != null)
+            {
+                Uri videoUri = null;
+
+                try
+                {
+                    videoUri = new Uri(Video);
+                }
+                catch (Exception e) { }
+
+                if (videoUri == null)
+                {
+                    yield return new ValidationResult("Not a valid link");
+                }
+                else
+                {
+                    string[] allowedHosts = {
+                    "www.youtube.com",
+                    "youtube.com",
+                    "youtu.be",
+                    "www.tiktok.com"
+                };
+
+                    if (!allowedHosts.Contains(videoUri.Host))
+                    {
+                        yield return new ValidationResult("Video link is not supported - Only YouTube links");
+                    }
+                }
+
+                
+            }
         }
     }
 }
