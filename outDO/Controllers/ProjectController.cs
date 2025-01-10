@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Evaluation;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 using outDO.Data;
@@ -35,7 +36,22 @@ namespace outDO.Controllers
                            where pm.UserId == userManager.GetUserId(User)
                            select p;
 
-            ViewBag.Projects = projects;
+            int perPage = 3;
+
+            var currentPage = Convert.ToInt32(HttpContext.Request.Query["page"]);
+
+            int offset = 0;
+
+            if (!currentPage.Equals(0))
+            {
+                offset = (currentPage - 1) * perPage;
+            }
+
+            var paginatedProjects = projects.Skip(offset).Take(perPage);
+
+            ViewBag.lastPage = Math.Ceiling((float)projects.Count() / (float)perPage);
+            ViewBag.Projects = paginatedProjects;
+            ViewBag.PaginationBaseUrl = "?page";
             return View();
         }
 
@@ -79,7 +95,23 @@ namespace outDO.Controllers
             Project project = db.Projects.Where(p => p.Id == id).First();
 
             var boards = db.Boards.Where(b => b.ProjectId == project.Id).ToList();
-            ViewBag.Boards = boards;
+
+            int perPage = 3;
+
+            var currentPage = Convert.ToInt32(HttpContext.Request.Query["page"]);
+
+            int offset = 0;
+
+            if (!currentPage.Equals(0))
+            {
+                offset = (currentPage - 1) * perPage;
+            }
+
+            var paginatedBoards = boards.Skip(offset).Take(perPage);
+
+            ViewBag.lastPage = Math.Ceiling((float)boards.Count() / (float)perPage);
+            ViewBag.Boards = paginatedBoards;
+            ViewBag.PaginationBaseUrl = "?page";
 
             return View(project);
         }

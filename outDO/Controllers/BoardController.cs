@@ -55,7 +55,25 @@ namespace outDO.Controllers
             Board board = db.Boards.Where(b => b.Id == id).First();
 
             var tasks = db.Tasks.Where(t => t.BoardId == board.Id).ToList();
-            ViewBag.Tasks = tasks;
+
+            int perPage = 3;
+
+            var currentPage = Convert.ToInt32(HttpContext.Request.Query["page"]);
+
+            int offset = 0;
+
+            if (!currentPage.Equals(0))
+            {
+                offset = (currentPage - 1) * perPage;
+            }
+
+            var paginatedTasks = tasks.Skip(offset).Take(perPage);
+
+            ViewBag.lastPage = Math.Ceiling((float)tasks.Count() / (float)perPage);
+            ViewBag.Tasks = paginatedTasks;
+            ViewBag.PaginationBaseUrl ="?page";
+
+            ViewBag.Tasks = paginatedTasks;
 
             return View(board);
         }
