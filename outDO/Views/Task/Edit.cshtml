@@ -1,5 +1,5 @@
 ﻿@model outDO.Models.Task
-<h1>Add task</h1>
+<h1>Edit task</h1>
 <div class="d-flex justify-content-center">
     <form asp-controller="Task" asp-action="Edit"
           class="col-6 bg-light p-3 rounded">
@@ -7,7 +7,6 @@
 
         <input type="hidden" asp-for="Id" value="@ViewBag.Task.Id" />
         <input type="hidden" asp-for="BoardId" value="@ViewBag.Task.BoardId" />
-        <input type="hidden" asp-for="Status" value="@ViewBag.Task.Status" />
 
         <div class="form-floating mb-3">
             <input asp-for="Title" placeholder="Task Title" class="form-control" value="@ViewBag.Task.Title"/>
@@ -15,9 +14,22 @@
         </div>
 
         <div class="form-floating mb-3 ">
-            <textarea asp-for="Description" placeholder="Description" class="form-control" value="@ViewBag.Task.Description"></textarea>
+            <input asp-for="Description" placeholder="Description" class="form-control" value="@ViewBag.Task.Description"></input> 
+            <!--initial era textarea insa nu mergea value!-->
             <label asp-for="Description">Description</label>
         </div>
+
+        <div class="form-group">
+            <label for="dropdown">Status:</label>
+            <select id="dropdown" asp-for="Status" class="form-control"> <!--Deci ca sa imi preia ca lumea a trebuit sa fac cu model-->
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Finished">Finished</option>
+            </select>
+        </div>
+
+        <br />
+        
         <div class="form-group d-flex justify-content-around mb-3">
             <div class="d-inline-block">
                 <label asp-for="DateStart" class="text-muted form-cont">Start Date</label>

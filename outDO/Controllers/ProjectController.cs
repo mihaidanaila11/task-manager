@@ -75,7 +75,7 @@ namespace outDO.Controllers
 
                 projectMember.ProjectId = id;
                 projectMember.UserId = userManager.GetUserId(User).ToString();
-                projectMember.ProjectRole = string.Empty;
+                projectMember.ProjectRole = "Organizator";
 
                 db.ProjectMembers.Add(projectMember);
 
@@ -116,12 +116,13 @@ namespace outDO.Controllers
             return View(project);
         }
 
-        private bool isUserAuthorized(string projectId)
+        private bool isUserAuthorized(string projectId) //daca este organizatorul proiectului
         {
             var userId = from p in db.Projects
                          join pm in db.ProjectMembers on
                          p.Id equals pm.ProjectId
                          where p.Id == projectId
+                         where pm.ProjectRole == "Organizator"
                          select pm.UserId;
             if (userId.First() != userManager.GetUserId(User))
             {
@@ -131,6 +132,7 @@ namespace outDO.Controllers
             return true;
         }
 
+     
         [Authorize]
         public IActionResult Delete(string id)
         {
@@ -178,6 +180,11 @@ namespace outDO.Controllers
 
                 return View();
             }
+        }
+
+        public IActionResult GoBack()
+        {   //ne intoarcem la toate proiectele
+            return RedirectToAction("Index");
         }
     }
 }

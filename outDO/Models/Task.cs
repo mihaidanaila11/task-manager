@@ -15,7 +15,7 @@ namespace outDO.Models
         public string? Description { get; set; }
 
         [Required]
-        public string Status { get; set; }
+        public string Status { get; set; } = "Not Started";
 
         public DateTime? DateStart { get; set; }
 
