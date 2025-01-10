@@ -7,6 +7,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Linq;
 using System.Net.NetworkInformation;
 using Task = outDO.Models.Task;
+using System.Threading.Tasks;
 
 namespace outDO.Controllers
 {
@@ -215,6 +216,45 @@ namespace outDO.Controllers
 
             return View(task);
 
+        }
+
+        [HttpGet]
+        public IActionResult Show(string Id)
+        {
+            var task = db.Tasks.Where(t => t.Id == Id).First();
+            var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
+
+            ViewBag.comments = comments;
+
+
+            return View(task);
+        }
+
+        [HttpPost]
+        public IActionResult Show(string Id, [FromForm] Comment comment)
+        {
+            
+
+            string commentId = Guid.NewGuid().ToString();
+            ModelState.Remove(nameof(comment.Id));
+            ModelState.Remove(nameof(comment.TaskId));
+            ModelState.Remove(nameof(comment.UserId));
+            comment.Id = commentId;
+            comment.TaskId = Id;
+            comment.UserId = userManager.GetUserId(User).ToString();
+
+            if(TryValidateModel(comment))
+            {
+                db.Comments.Add(comment);
+                db.SaveChanges();
+            }
+
+            var task = db.Tasks.Where(t => t.Id == Id).First();
+            var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
+
+            ViewBag.comments = comments;
+
+            return View(task);
         }
     }
 }

@@ -29,6 +29,8 @@ namespace outDO.Models
 
         public virtual Board? Board { get; set; }
 
+        public virtual ICollection<Comment>? Comments { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (DateStart > DateFinish)

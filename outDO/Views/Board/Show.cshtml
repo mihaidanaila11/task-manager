@@ -32,15 +32,18 @@
                     <p>@task.Description</p>
                 }
 
-                @if (task.Media != null)
-                {
-                    <img src="@task.Media" class="img-thumbnail" />
-                }
+                
                 <h4>Status: @task.Status</h4>
                 <p>Start date @task.DateStart.ToString("dd/MM/yyyy/")</p>
                 <p>Deadline: @task.DateFinish.ToString("dd/MM/yyyy/")</p>
                 <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@task.Id">Delete Task</a>
                 <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@task.Id">Edit Task</a>
+                <a class="btn btn-success" asp-controller="Task" asp-action="Show" asp-route-id="@task.Id">View Task</a>
+
+                @if (task.Media != null)
+                {
+                    <img src="@task.Media" class="img-thumbnail" />
+                }
 
                 @if (task.Video != null)
                 {
