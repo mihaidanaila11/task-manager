@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using outDO.Data;
 using outDO.Models;
+using System.Threading.Tasks;
 
 namespace outDO.Controllers
 {
@@ -74,6 +75,25 @@ namespace outDO.Controllers
             ViewBag.PaginationBaseUrl ="?page";
 
             ViewBag.Tasks = paginatedTasks;
+
+            Dictionary<string, string> videoEmbLinks = new Dictionary<string, string>();
+
+            foreach(var paginatedTask in paginatedTasks)
+            {
+                if (paginatedTask.Video != null)
+                {
+                    Uri videoUri = new Uri(paginatedTask.Video);
+
+                    string youtubeVideoId = System.Web.HttpUtility.ParseQueryString(videoUri.Query).Get("v");
+
+                    string youtubeVideoEmbeded = "https://www.youtube.com/embed/" + youtubeVideoId + "?autoplay=0";
+
+
+                    videoEmbLinks.Add(paginatedTask.Id, youtubeVideoEmbeded);
+                }
+            }
+
+            ViewBag.videoEmbLinks = videoEmbLinks;
 
             return View(board);
         }
