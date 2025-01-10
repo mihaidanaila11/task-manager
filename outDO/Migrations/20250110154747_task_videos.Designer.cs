@@ -12,8 +12,8 @@ using outDO.Data;
 namespace outDO.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241216184228_newDB")]
-    partial class newDB
+    [Migration("20250110154747_task_videos")]
+    partial class task_videos
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -279,6 +279,9 @@ namespace outDO.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Video")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

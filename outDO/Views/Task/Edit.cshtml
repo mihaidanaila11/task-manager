@@ -36,6 +36,12 @@
             <input asp-for="Media" class="form-control" type="file" />
             <span asp-validation-for="Media" class="text-danger"></span>
         </div>
+
+        <div class="form-group">
+            <label asp-for="Video">Youtube Video</label>
+            <input asp-for="Video" class="form-control" value="@Model.Video"/>
+            <span asp-validation-for="Video" class="text-danger"></span>
+        </div>
         
         <div class="form-group d-flex justify-content-around mb-3">
             <div class="d-inline-block">

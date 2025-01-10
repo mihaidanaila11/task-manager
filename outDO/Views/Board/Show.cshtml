@@ -23,14 +23,15 @@
 <div class="d-flex justify-content-around mt-3">
 @foreach (var task in ViewBag.Tasks)
 {
-    <div class="card col-3 text-center">
-        <div class="m-3">
-            <h4>@task.Title</h4>
-            @if(@task.Description != null){
-                <p>@task.Description</p>
-            }
+        <div class="card col-3 text-center">
+            <div class="m-3">
+                <h4>@task.Title</h4>
+                @if (@task.Description != null)
+                {
+                    <p>@task.Description</p>
+                }
 
-                @if(task.Media != null)
+                @if (task.Media != null)
                 {
                     <img src="@task.Media" class="img-thumbnail" />
                 }
@@ -39,9 +40,28 @@
                 <p>Deadline: @task.DateFinish.ToString("dd/MM/yyyy/")</p>
                 <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@task.Id">Delete Task</a>
                 <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@task.Id">Edit Task</a>
-            
+
+                @{
+                    if (task.Video != null)
+                    {
+                        Uri videoUri = new Uri(task.Video);
+
+                        string youtubeVideoId = System.Web.HttpUtility.ParseQueryString(videoUri.Query).Get("v");
+
+                        string youtubeVideoEmbeded = "https://www.youtube.com/embed/" + youtubeVideoId + "?autoplay=0";
+
+                        <div class="embed-responsive embed-responsive-16by9">
+                            <iframe class="embed-responsive-item mt-3"
+                                    src="@youtubeVideoEmbeded"
+                                    title="YouTube video player"
+                                    frameborder="0"></iframe>
+                        </div>
+
+                    }
+                }
+
+            </div>
         </div>
-    </div>
 }
 </div>
 

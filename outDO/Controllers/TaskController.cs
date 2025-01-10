@@ -37,7 +37,7 @@ namespace outDO.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> New([FromForm] Task task, IFormFile Media)
+        public async Task<IActionResult> New([FromForm] Task task, IFormFile? Media)
         {
             string id = Guid.NewGuid().ToString();
             task.Id = id;

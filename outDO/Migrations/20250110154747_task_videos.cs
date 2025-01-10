@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace outDO.Migrations
 {
     /// <inheritdoc />
-    public partial class newDB : Migration
+    public partial class task_videos : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -225,7 +225,8 @@ namespace outDO.Migrations
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateStart = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DateFinish = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Media = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Media = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Video = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
