@@ -228,5 +228,21 @@ namespace outDO.Controllers
             Board board = db.Boards.Find(id);
             return Redirect("/Project/Show/" + board.ProjectId);
         }
+
+        public IActionResult Test(string id)
+        {
+            Board board = db.Boards.Where(b => b.Id == id).First();
+
+
+            var notStartedTasks = db.Tasks.Where(t => t.BoardId == board.Id && t.Status.ToLower() == "not started").ToList();
+            var doingTasks = db.Tasks.Where(t => t.BoardId == board.Id && t.Status.ToLower() == "in progress").ToList();
+            var finishedTasks = db.Tasks.Where(t => t.BoardId == board.Id && t.Status.ToLower() == "finished").ToList();
+            
+            ViewBag.notStartedTasks = notStartedTasks;
+            ViewBag.doingTasks = doingTasks;
+            ViewBag.finishedTasks = finishedTasks;
+
+            return View(board);
+        }
     }
 }

@@ -1,0 +1,103 @@
+﻿@model outDO.Models.Board
+@using outDO.Services
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> UserManager
+@inject IProjectService ProjectService
+
+<h2>@Model.Name</h2>
+<hr />
+
+<a class="btn btn-success mb-3" asp-controller="Board" asp-action="GoBack" asp-route-id="@Model.Id">Go Back</a>
+
+
+@if (ProjectService.isUserOrganiserBoard(@Model.Id, UserManager.GetUserId(User)))
+{
+    <a class="btn btn-success mb-3" asp-controller="Task" asp-action="New" asp-route-id="@Model.Id">Add Task</a>
+}
+
+<div class="container">
+
+    <!-- header -->
+    <div class="row g-3">
+        <div class="col-4 text-center align-items-center ">
+            <div class="bg-light rounded">
+                <h3>Not Started</h3>
+            </div>
+            
+        </div>
+
+        <div class="col-4 text-center align-items-center ">
+            <div class="bg-light rounded">
+                <h3>In Progress</h3>
+            </div>
+
+        </div>
+
+        <div class="col-4 text-center align-items-center ">
+            <div class="bg-light rounded">
+                <h3>Finished</h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-4">
+            <div class="bg-light p-3 h-100 rounded d-flex flex-column align-items-center">
+                @foreach (var task in ViewBag.notStartedTasks)
+                {
+
+                    <div class="card col-10 mb-3">
+                        <a class="btn" asp-controller="Task" asp-action="Show" asp-route-id="@task.Id">
+                            <div class="card-body">
+                                <h5 class="card-title">@task.Title</h5>
+                                <p class="text-muted mb-0">@task.Description</p>
+                            </div>
+                        </a>
+                    </div>
+
+                }
+            </div>
+
+        </div>
+
+        <div class="col-4">
+            <div class="bg-light p-3 h-100 rounded d-flex flex-column align-items-center">
+                @foreach (var task in ViewBag.doingTasks)
+                {
+
+                    <div class="card col-10 mb-3">
+                        <a class="btn" asp-controller="Task" asp-action="Show" asp-route-id="@task.Id">
+                            <div class="card-body">
+                                <h5 class="card-title">@task.Title</h5>
+                                <p class="text-muted mb-0">@task.Description</p>
+                            </div>
+                        </a>
+                    </div>
+
+
+                }
+            </div>
+
+        </div>
+
+        <div class="col-4">
+            <div class="bg-light p-3 h-100 rounded d-flex flex-column align-items-center">
+                @foreach (var task in ViewBag.finishedTasks)
+                {
+
+                    <div class="card col-10 mb-3">
+                        <a class="btn" asp-controller="Task" asp-action="Show" asp-route-id="@task.Id">
+                            <div class="card-body">
+                                <h5 class="card-title">@task.Title</h5>
+                                <p class="text-muted mb-0">@task.Description</p>
+                            </div>
+                        </a>
+                    </div>
+
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
