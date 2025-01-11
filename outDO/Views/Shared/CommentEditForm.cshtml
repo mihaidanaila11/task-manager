@@ -1,0 +1,13 @@
+﻿@model outDO.Models.Comment
+<div asp-validation-summary="All" class="text-danger" role="alert"></div>
+<label asp-for="Content">Continut comentariu</label>
+<br />
+<textarea class="form-control" name="Content">@Model.Content</textarea>
+<span asp-validation-for="Content" class="text-danger"></span>
+
+<br />
+<br />
+<button class="btn btn-success " type="submit">
+    Edit Comment
+</button>
+

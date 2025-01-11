@@ -8,6 +8,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 
+
 namespace outDO.Controllers
 {
     public class BoardController : Controller
@@ -158,25 +159,33 @@ namespace outDO.Controllers
 
         private bool isUserAuthorized(string boardId)
         {
-            var userId = from b in db.Boards
+            var userIds = from b in db.Boards
                          join p in db.Projects on
                          b.ProjectId equals p.Id
                          join pm in db.ProjectMembers on
                          p.Id equals pm.ProjectId
                          where b.Id == boardId
-                         select pm.UserId;
-            if (userId.First() != userManager.GetUserId(User))
+                         where pm.ProjectRole == "Organizator"
+                          select pm.UserId;
+
+            if (!userIds.Any())
             {
                 return false;
             }
 
-            return true;
+            if (userIds.Contains(userManager.GetUserId(User)))
+            {
+                return true;
+            }
+
+            return false;
+
         }
 
         [Authorize]
         public IActionResult Delete(string id)
         {
-            if (!isUserAuthorized(id))
+            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
             {
                 return StatusCode(403);
             }
@@ -227,6 +236,22 @@ namespace outDO.Controllers
         {   //ne intoarcem la proiectul din care am venit
             Board board = db.Boards.Find(id);
             return Redirect("/Project/Show/" + board.ProjectId);
+        }
+
+        public IActionResult Test(string id)
+        {
+            Board board = db.Boards.Where(b => b.Id == id).First();
+
+
+            var notStartedTasks = db.Tasks.Where(t => t.BoardId == board.Id && t.Status.ToLower() == "not started").ToList();
+            var doingTasks = db.Tasks.Where(t => t.BoardId == board.Id && t.Status.ToLower() == "in progress").ToList();
+            var finishedTasks = db.Tasks.Where(t => t.BoardId == board.Id && t.Status.ToLower() == "finished").ToList();
+            
+            ViewBag.notStartedTasks = notStartedTasks;
+            ViewBag.doingTasks = doingTasks;
+            ViewBag.finishedTasks = finishedTasks;
+
+            return View(board);
         }
     }
 }
