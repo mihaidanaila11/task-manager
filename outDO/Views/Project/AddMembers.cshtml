@@ -1,0 +1,56 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using outDO.Models
+@inject UserManager<User> UserManager
+@model outDO.Models.Project
+
+<h2>@Model.Name</h2>
+<hr />
+@{
+    var userId = @UserManager.GetUserId(User);
+}
+
+<a class="btn btn-success mb-3" asp-controller="Project" asp-action="GoBack">Go Back</a>
+
+	<h3>Organisers</h3>
+    <!--user ul si posibilitatea sa nu mai fii organiser-->
+
+    <p>@ViewBag.ThisUserEmail  @UserManager.GetUserName(User)</p>
+    <a class="btn btn-dark mb-3" asp-controller="Project" asp-action="RemoveOrganiser" asp-route-id="@Model.Id" asp-route-userId="@userId">Step down from Organiser Role</a>
+    @if (TempData["AlertMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["AlertMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!--afisam restul de organizatorii ai proiectului -->
+    @foreach (var organiser in ViewBag.Organisers)
+    {
+    <p>@organiser.Email @organiser.UserName</p>
+    }
+
+
+	<h3>Members</h3>
+<!--afisam toti membrii proiectului + buton de make organiser  + buton de remove member-->
+    @foreach (var member in ViewBag.Members)
+    {
+        <p>@member.Email @member.UserName</p>
+        <p>
+            <a class="btn btn-dark mb-3" asp-controller="Project" asp-action="RemoveMember"
+           asp-route-id="@Model.Id" asp-route-userId="@userId" asp-route-memberId="@member.Id">Remove Member</a>
+
+            <a class="btn btn-dark mb-3" asp-controller="Project" asp-action="AddOrganiser"
+           asp-route-id="@Model.Id" asp-route-userId="@userId" asp-route-memberId="@member.Id">Make Organiser</a>
+        </p>
+    }
+
+
+	<h3>All Users</h3>
+    <!--si apoi toti membrii din baza de date dupa username....? cu buton de add member si search engine?-->
+@foreach (var oneuser in ViewBag.nonMembers)
+    {
+    <p>@oneuser.Email @oneuser.UserName</p>
+        <a class="btn btn-dark mb-3" asp-controller="Project" asp-action="AddMember"
+       asp-route-id="@Model.Id" asp-route-userId="@userId" asp-route-memberId="@oneuser.Id">Make Project Member</a>
+    }
