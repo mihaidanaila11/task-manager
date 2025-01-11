@@ -58,6 +58,7 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult New()
         {
+
             return View();
         }
 
@@ -116,7 +117,7 @@ namespace outDO.Controllers
             return View(project);
         }
 
-        private bool isUserAuthorized(string projectId, string? userId) //daca este organizatorul proiectului
+        private bool isUserAuthorized(string projectId) //daca este organizatorul proiectului
         {
             var userIds = from p in db.Projects
                           join pm in db.ProjectMembers on
@@ -130,7 +131,7 @@ namespace outDO.Controllers
             }
 
 
-            if (userIds.Contains(userId))
+            if (userIds.Contains(userManager.GetUserId(User)))
             {
                 return true;
             }
@@ -140,9 +141,9 @@ namespace outDO.Controllers
 
 
         [Authorize]
-        public IActionResult Delete(string id, string userId)
+        public IActionResult Delete(string id)
         {
-            if (!isUserAuthorized(id, userId))
+            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
             {
                 return StatusCode(403);
             }
@@ -152,13 +153,22 @@ namespace outDO.Controllers
             db.Projects.Remove(project);
             db.SaveChanges();
 
-            return RedirectToAction("Index");
+            if(isUserAuthorized(id))
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return RedirectToAction("Projects", "Admin");
+            }
+
+
         }
 
         [Authorize]
-        public IActionResult Edit(string id, string userId)
+        public IActionResult Edit(string id)
         {
-            if (!isUserAuthorized(id, userId))
+            if (!isUserAuthorized(id))
             {
                 return StatusCode(403);
             }
@@ -189,12 +199,31 @@ namespace outDO.Controllers
         }
 
         public IActionResult GoBack()
-        {   //ne intoarcem la toate proiectele
+        {
+            //ne intoarcem la toate proiectele
             return RedirectToAction("Index");
+        }
+
+        [Authorize(Roles ="Admin")]
+        public IActionResult GoBackAdmin()
+        {
+            if (isUserAuthorized(userManager.GetUserId(User)))
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return RedirectToAction("Projects", "Admin");
+            }
         }
 
         public IActionResult AddMembers(string id, string userId)
         {
+            if (!isUserAuthorized(id) || User.IsInRole("Admin"))
+            {
+                return StatusCode(403);
+            }
+
             var thisUserEmail = (from p in db.Projects
                             join pm in db.ProjectMembers on
                             p.Id equals pm.ProjectId
@@ -250,25 +279,47 @@ namespace outDO.Controllers
 
         public IActionResult AddOrganiser(string id, string userId, string memberId)
         {
+            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
+            {
+                return StatusCode(403);
+            }
             //el e deja membru deci trb sa il gasesc si sa il modific
             var projectMember = db.ProjectMembers.Find(memberId, id);
             projectMember.ProjectRole = "Organizator";
-            db.SaveChanges(); 
+            db.SaveChanges();
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("AdminMembers", new { id = id });
+            }
             return RedirectToAction("AddMembers", new { id = id, userId = userId });
         }
 
         public IActionResult AddMember(string id, string userId, string memberId)
         {
+            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
+            {
+                return StatusCode(403);
+            }
+
             ProjectMember projectMember = new ProjectMember();
             projectMember.ProjectId = id;
             projectMember.UserId = memberId;
             db.ProjectMembers.Add(projectMember);
             db.SaveChanges();
+            if(User.IsInRole("Admin"))
+            {
+                return RedirectToAction("AdminMembers", new { id = id });
+            }
             return RedirectToAction("AddMembers", new { id = id, userId = userId });
         }
 
         public IActionResult RemoveOrganiser(string id, string userId)
         {
+            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
+            {
+                return StatusCode(403);
+            }
+
             //verificam sa nu fie un singur organizator
             var organisers = (from p in db.Projects
                               join pm in db.ProjectMembers on
@@ -277,7 +328,7 @@ namespace outDO.Controllers
                               where pm.ProjectRole == "Organizator"
                               select pm.UserId).ToList();
 
-            if (organisers.Count <= 1)
+            if (!User.IsInRole("Admin") && organisers.Count <= 1) //daca e admin face ce vrea
             {
                 TempData["AlertMessage"] = "The project must have at least one organiser. Assign a different organiser if you wish to step down";
                 return RedirectToAction("AddMembers", new { id = id, userId = userId });
@@ -286,16 +337,73 @@ namespace outDO.Controllers
             var projectMember = db.ProjectMembers.Find(userId, id);
             projectMember.ProjectRole = "Member";
             db.SaveChanges();
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("AdminMembers", new { id = id });
+            }
             return RedirectToAction("Index");
 
         }
     
         public IActionResult RemoveMember(string id, string userId, string memberId)
         {
+            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
+            {
+                return StatusCode(403);
+            }
+
             var projectMember = db.ProjectMembers.Find(memberId, id);
             db.ProjectMembers.Remove(projectMember);
             db.SaveChanges();
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("AdminMembers", new { id = id });
+            }
             return RedirectToAction("AddMembers", new { id = id, userId = userId });
+        }
+
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult AdminMembers(string id)
+        {
+            var organisers = (from p in db.Projects
+                              join pm in db.ProjectMembers on
+                              p.Id equals pm.ProjectId
+                              join u in db.Users on
+                              pm.UserId equals u.Id
+                              where p.Id == id
+                              where pm.ProjectRole == "Organizator"
+                              select new
+                              { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.Organisers = organisers;
+
+            var members = (from p in db.Projects
+                           join pm in db.ProjectMembers on
+                           p.Id equals pm.ProjectId
+                           join u in db.Users on
+                           pm.UserId equals u.Id
+                           where p.Id == id
+                           where pm.ProjectRole != "Organizator"
+                           select new
+                           { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.Members = members;
+
+            var allUsers = (from u in db.Users
+                            select new
+                            { u.Id, u.UserName, u.Email }).ToList();
+
+            var nonMembers = (from u in allUsers
+                              where !members.Contains(u)
+                              where !organisers.Contains(u)
+                              select new
+                              { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.nonMembers = nonMembers;
+
+            var project = db.Projects.Find(id);
+            return View(project);
         }
 
     }

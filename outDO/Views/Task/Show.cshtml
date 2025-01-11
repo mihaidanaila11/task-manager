@@ -21,9 +21,11 @@
             <p class="d-inline"><strong>Start date</strong> @Model.DateStart.Value.ToString("dd/MM/yyyy/")</p>
             <p class="d-inline"><strong>Deadline</strong>: @Model.DateFinish.Value.ToString("dd/MM/yyyy/")</p>
         </div>
-
-        <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@Model.Id">Edit Task</a>
-		@if (ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)))
+        @if (ProjectService.isUserTaskMember(Model.Id, UserManager.GetUserId(User)))
+        {   //ca sa nu poata si admin ul daca nu e membru la proiect
+            <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@Model.Id">Edit Task</a>
+        }
+        @if (ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)) || User.IsInRole("Admin"))
 		{
 			<a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@Model.Id">Delete Task</a>
 		}
