@@ -35,6 +35,24 @@ namespace outDO.Controllers
 
         public IActionResult Projects()
         {
+            Dictionary<string, List<User>> projectOrg = new Dictionary<string, List<User>>();//lista de organizatori pentru fiecare proiect
+
+            foreach (var project in db.Projects)
+            {
+                List<User> projectOrganisers = new List<User>();
+
+                foreach (var projectMember in db.ProjectMembers)
+                {
+                    if (projectMember.ProjectId == project.Id && projectMember.ProjectRole == "Organizator")
+                    {
+                        projectOrganisers.Add(db.Users.Find(projectMember.UserId));
+                    }
+                }
+                projectOrg.Add(project.Id, projectOrganisers);
+            }
+
+            ViewBag.ProjectOrganisers = projectOrg;
+
             ViewBag.Projects = db.Projects;
             return View();
         }

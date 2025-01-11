@@ -60,7 +60,7 @@ namespace outDO.Controllers
             return true;
         }
 
-
+        //womp womp
         [HttpGet]
         public IActionResult Delete(string id)
         {

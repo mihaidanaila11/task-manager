@@ -7,21 +7,42 @@
 	<div>
 		<h2 class="display-2">PROJECT MANAGEMENT</h2>
 		<a class="btn btn-success mb-3" asp-controller="Admin" asp-action="GoBack">Go Back</a>
-		<hr/>
+		<hr />
 		<div class="container">
 			@foreach (var project in ViewBag.Projects)
-		{
-		
-			<div class="row align-items-center mb-2">
+			{
+				<div class="card mt-3">
+				<div class="row align-items-center mb-2 card-body">
 					<div class="col-auto ">
-					<h5>@project.Name</h5>
-				</div>
+						<h5>@project.Name</h5>
+						<p>
+							<a>Organisers: </a>
+							@{
+								var index = 0;
+
+								foreach (var org in ViewBag.ProjectOrganisers[project.Id])
+								{
+									if (index < 3)
+									{
+										index += 1;
+										<a>@org.UserName  </a>
+									}
+									else
+									{
+										<a>+more</a>
+										break;
+									}
+								}
+							}
+						</p>
+
+					</div>
 					<div class="col text-end ">
 						<a class="btn btn-primary" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">Manage Project</a>
+					</div>
 				</div>
-			</div>
-			<hr/>
-		}
+				</div>
+			}
 		</div>
 	</div>
 </body>
