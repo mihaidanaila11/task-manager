@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using Task = outDO.Models.Task;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace outDO.Controllers
 {
@@ -21,6 +22,7 @@ namespace outDO.Controllers
         private readonly UserManager<User> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IWebHostEnvironment _env;
+        private readonly HttpClient client;
         public TaskController(ApplicationDbContext context, UserManager<User> _userManager, 
             RoleManager<IdentityRole> _roleManager, IWebHostEnvironment env)
         {
@@ -28,6 +30,13 @@ namespace outDO.Controllers
             userManager = _userManager;
             roleManager = _roleManager;
             _env = env;
+
+            HttpClientHandler handler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.All
+            };
+
+            client = new HttpClient();
         }
 
         [Authorize]
@@ -314,10 +323,65 @@ namespace outDO.Controllers
         }
 
         [HttpGet]
-        public IActionResult Show(string Id)
+        public async Task<IActionResult> Show(string Id)
         {
             var task = db.Tasks.Where(t => t.Id == Id).First();
             var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
+
+            
+
+            // ---
+            if (task.Video != null)
+            {
+                Tuple<string, string> videoEmbLink = new Tuple<string, string>(string.Empty, string.Empty);
+                Uri videoUri = new Uri(task.Video);
+
+                string[] YouTubeHosts = {
+                        "www.youtube.com",
+                        "youtube.com",
+                        "youtu.be"};
+
+                if (YouTubeHosts.Contains(videoUri.Host.ToLower()))
+                {
+                    string youtubeVideoId = System.Web.HttpUtility.ParseQueryString(videoUri.Query).Get("v");
+
+                    string youtubeVideoEmbeded = "https://www.youtube.com/embed/" + youtubeVideoId + "?autoplay=0";
+
+
+                    videoEmbLink = new Tuple<string,string>("youtube", youtubeVideoEmbeded);
+                }
+
+                else if (videoUri.Host.ToLower() == "www.tiktok.com")
+                {
+                    //Tiktok
+
+                    string requestUrl = "https://www.tiktok.com/oembed?url=" + task.Video;
+
+                    try
+                    {
+                        HttpResponseMessage response = await client.GetAsync(requestUrl);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string responseBody = await response.Content.ReadAsStringAsync();
+
+                            videoEmbLink = new Tuple<string, string>("tiktok", responseBody);
+                        }
+                        else
+                        {
+                            //EROARE
+                            // AR TREBUI SA VERIFIC IN MODEL SA EXISTE CLIPURILE!!!!!!!
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //EROARE
+                    }
+                   
+                }
+                ViewBag.VideoEmbLinks = videoEmbLink;
+            }
+            // ---
 
             List<Tuple<string, Comment>> userComments = new List<Tuple<string, Comment>>();
 
