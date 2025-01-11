@@ -37,29 +37,51 @@
                 <partial name="CommentForm" model="null"/>
             </div>
         </form>
-        
+
+        <script>
+            function toggleDiv(divId) {
+                var obj = document.getElementById(divId);
+                var contentDiv = document.getElementById(divId + "commentContent");
+                var form = document.getElementById(divId + "commentEditForm");
+
+                console.log(divId + "commentEditForm");
+
+                form.classList.toggle("d-none");
+                contentDiv.classList.toggle("d-none");
+            }
+        </script>
+
         @foreach(var com in ViewBag.comments)
         {
             <div class="card mt-3">
                 
-                <div class="card-body">
+                <div id="@com.Item2.Id" class="card-body">
                     <h5>@(com.Item1 + " - " + @com.Item2.Date.ToString("dd/MM/yyyy - HH:MM"))</h5>
-                    @com.Item2.Content
-                    <!--daca e user-ul poate sa editeze sau sa stearga. si organizatorul poate sa stearga-->
-                    @if (ProjectService.isUserOrganiserComment(com.Item2.Id, UserManager.GetUserId(User)) ||
-                   ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
-					{
-                        <a>uhmmm</a>
-                        <a class="btn" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id"><i class="bi bi-trash3"></i></a>
-					}
-                    @if (ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
-                    {
-                        <a class="btn" asp-controller="Comment" asp-action="Edit" asp-route-id="@com.Item2.Id"><i class="bi bi-pen"></i></a>
-                        <!--heheeee avem iconite i love them-->
-                    }
+                    <div id="@(com.Item2.Id + "commentContent")">
+                        <p>@com.Item2.Content</p>
+                        <!--daca e user-ul poate sa editeze sau sa stearga. si organizatorul poate sa stearga-->
+                        @if (ProjectService.isUserOrganiserComment(com.Item2.Id, UserManager.GetUserId(User)) ||
+                       ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
+					    {
+                            <a class="btn" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id"><i class="bi bi-trash3"></i></a>
+					    }
+                        @if (ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
+                        {
+                            <button class="btn" onClick="toggleDiv('@com.Item2.Id')"><i class="bi bi-pen"></i></button>
+                            <!--heheeee avem iconite i love them-->
+                        }
+                    </div>
+
+                    <form id="@(com.Item2.Id + "commentEditForm")" class="d-none" method="post"
+                          asp-controller="Comment" asp-action="Edit" asp-route-id = "@com.Item2.Id">
+                        <div>
+                            <input type="hidden" name="TaskId" value="@Model.Id" />
+                            <partial name="CommentEditForm" model=com.Item2 />
+                            <button type="button" class="btn btn-danger" onClick="toggleDiv('@com.Item2.Id')">Cancel Edit</button>
+                        </div>
+                    </form>
                     
                 </div>
-
                 
             </div>
         }
