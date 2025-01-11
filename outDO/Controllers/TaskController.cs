@@ -133,7 +133,7 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Delete(string id)
         {
-            if(!isUserAuthorized(id))
+            if(!isUserAuthorized(id) && !User.IsInRole("Admin"))
             {
                 return StatusCode(403);
             }

@@ -9,21 +9,25 @@
 <a class="btn btn-success" asp-controller="Project" asp-action="New">Add Project</a>
 
 <div class="d-flex justify-content-around mt-3">
-@foreach(var project in ViewBag.Projects)
-{
-    <div class="card col-3 text-center">
-        <div class="m-3">
-            <h3>@project.Name</h3>
-            <a class="btn btn-success" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">View</a>
+    @foreach(var project in ViewBag.Projects)
+    {
+        <div class="card col-3 text-center">
+            <div class="m-3">
+                <h3>@project.Name</h3>
+                <a class="btn btn-success" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">View</a>
 
-            <!-- daca e organizator poate sa stearga sau sa editeze-->
+                <!-- daca e organizator poate sa stearga sau sa editeze-->
                 @if (ProjectService.isUserOrganiserProject(project.Id, UserManager.GetUserId(User)))
-				{
-                    <a class="btn btn-danger" asp-controller="Project" asp-action="Delete" asp-route-id="@project.Id" asp-route-userId="@UserManager.GetUserId(User)">Delete Project</a>
-                    <a class="btn btn-warning" asp-controller="Project" asp-action="Edit" asp-route-id="@project.Id" asp-route-userId="@UserManager.GetUserId(User)">Edit Project</a>
-                    <a class="btn btn-info" asp-controller="Project" asp-action="AddMembers" asp-route-id="@project.Id" asp-route-userId="@UserManager.GetUserId(User)">Manage Members</a>
-				}
-             
+                {
+                    <a class="btn btn-danger" asp-controller="Project" asp-action="Delete" asp-route-id="@project.Id" >Delete Project</a>
+                    <a class="btn btn-warning" asp-controller="Project" asp-action="Edit" asp-route-id="@project.Id"  >Edit Project</a>
+
+                    if (!User.IsInRole("Admin"))
+                    { //ca are pagina lui personala
+                        <a class="btn btn-info" asp-controller="Project" asp-action="AddMembers" asp-route-id="@project.Id" >Manage Members</a>
+                    }
+                }
+
         </div>
     </div>
 }

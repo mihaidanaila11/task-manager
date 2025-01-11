@@ -31,7 +31,6 @@ namespace outDO.Controllers
         {
             return View();
         }
-       
 
         public IActionResult Privacy()
         {

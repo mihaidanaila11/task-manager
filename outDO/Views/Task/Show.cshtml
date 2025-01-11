@@ -8,7 +8,6 @@
 
 <a class="btn btn-success mb-3" asp-controller="Task" asp-action="GoBack" asp-route-id="@Model.Id">Go Back</a>
 
-
 <div class="container h-100 d-flex justify-content-center">
     <div class="col-10 justify-content-center bg-light p-3 rounded">
         <h1>@Model.Title</h1>
@@ -29,6 +28,74 @@
                     }
 
                     @if (Model.Video != null)
+                    {
+                        <div class="embed-responsive embed-responsive-16by9">
+                            @{
+                                if (ViewBag.videoEmbLinks[Model.Id].Item1 == "youtube")
+                                {
+
+                                    <iframe class="embed-responsive-item mt-3"
+                                            src="@ViewBag.videoEmbLinks[Model.Id].Item2"
+                                            title="YouTube video player"
+                                            frameborder="0"></iframe>
+
+                                }
+                                else if (ViewBag.videoEmbLinks[Model.Id].Item1 == "tiktok")
+                                {
+                                    // var requestResponse = new Microsoft.AspNetCore.Html.HtmlString((ViewBag.videoEmbLinks[task.Id].Item2));
+                                    var requestResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(ViewBag.videoEmbLinks[Model.Id].Item2);
+
+                                    var tiktokEmbeded = new Microsoft.AspNetCore.Html.HtmlString(requestResponse["html"]);
+                                    <div>@tiktokEmbeded</div>
+                                }
+                            }
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+            <div class="d-flex justify-content-around">
+    <p class="d-inline"><strong>Start date</strong> @Model.DateStart.Value.ToString("dd/MM/yyyy/")</p>
+    <p class="d-inline"><strong>Deadline</strong>: @Model.DateFinish.Value.ToString("dd/MM/yyyy/")</p>
+</div>
+    </div>
+
+
+</div>
+        @if (ProjectService.isUserTaskMember(Model.Id, UserManager.GetUserId(User)) || ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)))
+        {   //ca sa nu poata si admin ul daca nu e membru la proiect
+            <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@Model.Id">Edit Task</a>
+        }
+        @if (ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)) || User.IsInRole("Admin"))
+		{
+			<a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@Model.Id">Delete Task</a>
+		}
+        <hr />
+
+        <h3 class="mt-5">Comments</h3>
+        <form asp-controller="Task" asp-action="Show" asp-route-id="@Model.Id" method="post"
+              class="col-6 bg-light p-3 rounded">
+            <div>
+                <input type="hidden" name="TaskId" value="@Model.Id" />
+                <partial name="CommentForm" model="null"/>
+            </div>
+        </form>
+        
+        @foreach(var com in ViewBag.comments)
+        {
+            <div class="card mt-3">
+                
+                <div class="card-body">
+                    <h5>@(com.Item1 + " - " + @com.Item2.Date.ToString("dd/MM/yyyy - HH:MM"))</h5>
+                    @com.Item2.Content
+                    <!--daca e user-ul poate sa editeze sau sa stearga. si organizatorul poate sa stearga-->
+                    @if (ProjectService.isUserOrganiserComment(com.Item2.Id, UserManager.GetUserId(User)) ||
+                   ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
+					{
+                        <a class="btn" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id"><i class="bi bi-trash3"></i></a>
+					}
+                    @if (ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
                     {
                         <div class="embed-responsive embed-responsive-16by9">
                             @{
