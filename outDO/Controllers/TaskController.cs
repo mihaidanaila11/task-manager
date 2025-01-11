@@ -260,7 +260,26 @@ namespace outDO.Controllers
             var task = db.Tasks.Where(t => t.Id == Id).First();
             var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
 
-            ViewBag.comments = comments;
+            List<Tuple<string, Comment>> userComments = new List<Tuple<string, Comment>>();
+
+            foreach (var comment in comments)
+            {
+                // poate sa fie si null / deleted user
+                var username = (from c in db.Comments
+                               join u in db.Users on
+                               c.UserId equals u.Id
+                               where c.Id == comment.Id
+                               select u.UserName).First();
+
+                if (username == null)
+                {
+                    username = "Deleted User";
+                }
+
+                userComments.Add(new Tuple<string, Comment> ( username, comment ));
+            }
+
+            ViewBag.comments = userComments;
 
 
             return View(task);
@@ -278,6 +297,7 @@ namespace outDO.Controllers
             comment.Id = commentId;
             comment.TaskId = Id;
             comment.UserId = userManager.GetUserId(User).ToString();
+            comment.Date = DateTime.Now;
 
             if(TryValidateModel(comment))
             {
@@ -288,7 +308,26 @@ namespace outDO.Controllers
             var task = db.Tasks.Where(t => t.Id == Id).First();
             var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
 
-            ViewBag.comments = comments;
+            List<Tuple<string, Comment>> userComments = new List<Tuple<string, Comment>>();
+
+            foreach (var comm in comments)
+            {
+                // poate sa fie si null / deleted user
+                var username = (from c in db.Comments
+                                join u in db.Users on
+                                c.UserId equals u.Id
+                                where c.Id == comm.Id
+                                select u.UserName).First();
+
+                if (username == null)
+                {
+                    username = "Deleted User";
+                }
+
+                userComments.Add(new Tuple<string, Comment>(username, comm));
+            }
+
+            ViewBag.comments = userComments;
 
             return View(task);
         }

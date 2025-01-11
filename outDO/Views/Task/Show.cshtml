@@ -31,9 +31,14 @@
         @foreach(var com in ViewBag.comments)
         {
             <div class="card mt-3">
+                
                 <div class="card-body">
-                    @com.Content
+                    <h5>@(com.Item1 + " - " + @com.Item2.Date.ToString("dd/MM/yyyy - HH:MM"))</h5>
+                    @com.Item2.Content
+                    <a class="btn btn-danger" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id">Delete Comment</a>
                 </div>
+
+                
             </div>
         }
     </div>
