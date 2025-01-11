@@ -1,4 +1,8 @@
-﻿@model outDO.Models.Task
+﻿@using Microsoft.AspNetCore.Identity
+@using outDO.Services
+@inject UserManager<User> UserManager
+@inject IProjectService ProjectService
+@model outDO.Models.Task
 @using outDO.Models
 
 <div class="container h-100 d-flex justify-content-center">
@@ -35,7 +39,19 @@
                 <div class="card-body">
                     <h5>@(com.Item1 + " - " + @com.Item2.Date.ToString("dd/MM/yyyy - HH:MM"))</h5>
                     @com.Item2.Content
-                    <a class="btn btn-danger" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id">Delete Comment</a>
+                    <!--daca e user-ul poate sa editeze sau sa stearga. si organizatorul poate sa stearga-->
+                    @if (ProjectService.isUserOrganiserComment(com.Item2.Id, UserManager.GetUserId(User)))
+					{
+                        <a>uhmmm</a>
+                        <a class="btn" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id"><i class="bi bi-trash3"></i></a>
+					}
+                    @if (ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
+                    {
+                        <a class="btn" asp-controller="Comment" asp-action="Edit" asp-route-id="@com.Item2.Id"><i class="bi bi-pen"></i></a>
+                        <a class="btn" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id"><i class="bi bi-trash3"></i></a>
+                        <!--heheeee avem iconite i love them-->
+                    }
+                    
                 </div>
 
                 
