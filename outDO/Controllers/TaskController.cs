@@ -44,6 +44,10 @@ namespace outDO.Controllers
             string id = Guid.NewGuid().ToString();
             task.Id = id;
 
+
+            // Taskul trebuie sa contina cel putin un element media
+            bool mediaCheck = false;
+
             if (Media != null && Media.Length > 0)
             {
                 // Verificam extensia
@@ -78,6 +82,19 @@ namespace outDO.Controllers
                 }
                 ModelState.Remove(nameof(task.Media));
                 task.Media = databaseFileName;
+
+                mediaCheck = true;
+            }
+
+            if (!mediaCheck)
+            {
+                if(task.Video == null)
+                {
+                    ModelState.AddModelError(string.Empty, "At least one media element");
+
+                    ViewBag.BoardId = task.BoardId;
+                    return View(task);
+                }
             }
 
             if (TryValidateModel(task))
@@ -186,6 +203,36 @@ namespace outDO.Controllers
         {
             Task task = db.Tasks.Find(id);
 
+            var ProjectMembers = (from t in db.Tasks
+                                  join b in db.Boards on
+                                  t.BoardId equals b.Id
+                                  join pm in db.ProjectMembers on
+                                    b.ProjectId equals pm.ProjectId
+                                  join u in db.Users on
+                                  pm.UserId equals u.Id
+                                  where t.Id == id
+                                  where !t.TaskMembers.Contains(pm.User)
+                                  select new
+                                  { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.ProjectMembers = ProjectMembers;
+
+            var TaskMembers = (from t in db.Tasks
+                               join b in db.Boards on
+                               t.BoardId equals b.Id
+                               join pm in db.ProjectMembers on
+                                 b.ProjectId equals pm.ProjectId
+                               join u in db.Users on
+                               pm.UserId equals u.Id
+                               where t.Id == id
+                               where t.TaskMembers.Contains(pm.User)
+                               select new
+                               { u.Id, u.UserName, u.Email }).ToList();
+
+            ViewBag.TaskMembers = TaskMembers;
+
+            bool mediaCheck = false;
+
             if (Media != null && Media.Length > 0)
             {
                 // Verificam extensia
@@ -220,6 +267,18 @@ namespace outDO.Controllers
                 }
                 ModelState.Remove(nameof(task.Media));
                 requestTask.Media = databaseFileName;
+
+                mediaCheck = true;
+            }
+
+            if (!mediaCheck)
+            {
+                if (task.Video == null)
+                {
+                    ModelState.AddModelError(string.Empty, "At least one media element");
+
+                    return View(task);
+                }
             }
 
             if (TryValidateModel(requestTask))
@@ -240,12 +299,7 @@ namespace outDO.Controllers
                 }
                 catch (Exception)
                 {
-                    ViewBag.Project = task;
-
-                ViewBag.Task = task;
-
-
-                    return View();
+                    return View(task);
                 }
                 
             }
