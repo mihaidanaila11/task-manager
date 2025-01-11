@@ -180,7 +180,6 @@ namespace outDO.Controllers
 
             return false;
 
-            return true;
         }
 
         [Authorize]
