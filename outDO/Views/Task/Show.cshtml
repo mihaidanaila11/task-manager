@@ -21,7 +21,7 @@
             <p class="d-inline"><strong>Start date</strong> @Model.DateStart.Value.ToString("dd/MM/yyyy/")</p>
             <p class="d-inline"><strong>Deadline</strong>: @Model.DateFinish.Value.ToString("dd/MM/yyyy/")</p>
         </div>
-        @if (ProjectService.isUserTaskMember(Model.Id, UserManager.GetUserId(User)))
+        @if (ProjectService.isUserTaskMember(Model.Id, UserManager.GetUserId(User)) || ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)))
         {   //ca sa nu poata si admin ul daca nu e membru la proiect
             <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@Model.Id">Edit Task</a>
         }
@@ -51,7 +51,6 @@
                     @if (ProjectService.isUserOrganiserComment(com.Item2.Id, UserManager.GetUserId(User)) ||
                    ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
 					{
-                        <a>uhmmm</a>
                         <a class="btn" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id"><i class="bi bi-trash3"></i></a>
 					}
                     @if (ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
