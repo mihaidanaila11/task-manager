@@ -236,7 +236,7 @@ namespace outDO.Controllers
                     task.Video = requestTask.Video;
                     
                     await db.SaveChangesAsync();
-                    return Redirect("/Board/Show/" + task.BoardId);
+                    return Redirect("/Task/Show/" + id);
                 }
                 catch (Exception)
                 {
@@ -330,6 +330,12 @@ namespace outDO.Controllers
             ViewBag.comments = userComments;
 
             return View(task);
+        }
+
+        public IActionResult GoBack(string id)
+        {   //ne intoarcem la boardul din care am venit
+            Task task = db.Tasks.Find(id);
+            return Redirect("/Board/Show/" + task.BoardId);
         }
 
         public IActionResult AddMember(string id, string userId)

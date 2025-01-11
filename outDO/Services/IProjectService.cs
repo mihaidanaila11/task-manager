@@ -8,8 +8,9 @@ namespace outDO.Services
     {
         bool isUserOrganiserProject(string projectId, string userId);
         bool isUserOrganiserBoard(string boardId, string userId);
-        public bool isUserOrganiserComment(string commentId, string userId);
 
+        bool isUserOrganiserTask(string taskId, string userId);
+        bool isUserOrganiserComment(string commentId, string userId);
         bool isUsersComment(string commentId, string userId);
     }
 
@@ -66,6 +67,29 @@ namespace outDO.Services
                 return true;
             }
 
+            return false;
+        }
+
+        public bool isUserOrganiserTask(string taskId, string userId)
+        {
+            var usersId = from t in db.Tasks
+                          join b in db.Boards on
+                          t.BoardId equals b.Id
+                          join p in db.Projects on
+                          b.ProjectId equals p.Id
+                          join pm in db.ProjectMembers on
+                          p.Id equals pm.ProjectId
+                          where t.Id == taskId
+                          where pm.ProjectRole == "Organizator"
+                          select pm.UserId;
+            if (!usersId.Any())
+            {
+                return false;
+            }
+            if (usersId.Contains(userId))
+            {
+                return true;
+            }
             return false;
         }
 

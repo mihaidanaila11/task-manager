@@ -5,6 +5,9 @@
 @model outDO.Models.Task
 @using outDO.Models
 
+<a class="btn btn-success mb-3" asp-controller="Task" asp-action="GoBack" asp-route-id="@Model.Id">Go Back</a>
+
+
 <div class="container h-100 d-flex justify-content-center">
     <div class="col-10 justify-content-center bg-light p-3 rounded">
         <h1>@Model.Title</h1>
@@ -19,8 +22,11 @@
             <p class="d-inline"><strong>Deadline</strong>: @Model.DateFinish.Value.ToString("dd/MM/yyyy/")</p>
         </div>
 
-        <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@Model.Id">Delete Task</a>
         <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@Model.Id">Edit Task</a>
+		@if (ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)))
+		{
+			<a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@Model.Id">Delete Task</a>
+		}
         <hr />
 
         <h3 class="mt-5">Comments</h3>

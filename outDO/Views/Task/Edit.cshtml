@@ -1,7 +1,52 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using outDO.Services
+@inject IProjectService ProjectService
 @inject UserManager<User> UserManager
 @model outDO.Models.Task
 <h1>Edit task</h1>
+@if (!ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)))
+{
+    <form asp-controller="Task" asp-action="Edit" class="col-6 bg-light p-3 rounded"
+          enctype="multipart/form-data">
+
+        
+
+        <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
+        <!--pentru toate inafara de status-->
+        <input type="hidden" asp-for="Id" value="@Model.Id" />
+        <input type="hidden" asp-for="BoardId" value="@Model.BoardId" />
+        <input type="hidden" asp-for="Title" value="@Model.Title" />
+        <input type="hidden" asp-for="Description" value="@Model.Description" />
+        <input type="hidden" asp-for="DateStart" value="@Model.DateStart" />
+        <input type="hidden" asp-for="DateFinish" value="@Model.DateFinish" />
+        <input type="hidden" asp-for="Media" value="@Model.Media" />
+        <input type="hidden" asp-for="Video" value="@Model.Video" />
+        <input type="hidden" asp-for="TaskMembers" value="@Model.TaskMembers" />
+
+
+
+
+        <div class="form-floating mb-3">
+            <h2>@Model.Title</h2>
+        </div>
+
+            <div class="form-group">
+                <label for="dropdown">Status:</label>
+                <select id="dropdown" asp-for="Status" class="form-control">
+                    <!--Deci ca sa imi preia ca lumea a trebuit sa fac cu model-->
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Finished">Finished</option>
+                </select>
+            </div>
+            <br />
+            <button type="submit" class="btn btn-primary">Edit Task</button>
+        </form>
+}
+else
+{
+
 <div class="d-flex justify-content-center">
     <form asp-controller="Task" asp-action="Edit"
 
@@ -97,3 +142,4 @@
         <button type="submit" class="btn btn-primary">Edit Task</button>
     </form>
 </div>
+}
