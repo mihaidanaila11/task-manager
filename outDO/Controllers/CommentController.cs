@@ -64,7 +64,7 @@ namespace outDO.Controllers
         [HttpGet]
         public IActionResult Delete(string id)
         {
-            if (!isUserAuthorized(id) && isUsersComment(id) && !User.IsInRole("Admin"))
+            if (!isUserAuthorized(id) && !isUsersComment(id) && !User.IsInRole("Admin"))
             {
                 return StatusCode(403);
             }
@@ -81,7 +81,7 @@ namespace outDO.Controllers
 
         public IActionResult Edit(string id, [FromForm] Comment formComment)
         {
-            if (isUsersComment(id))
+            if (!isUsersComment(id))
             {
                 return StatusCode(403);
             }
