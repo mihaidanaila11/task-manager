@@ -32,19 +32,19 @@
                     {
                         <div class="embed-responsive embed-responsive-16by9">
                             @{
-                                if (ViewBag.videoEmbLinks[Model.Id].Item1 == "youtube")
+                                if (ViewBag.videoEmbLinks.Item1 == "youtube")
                                 {
 
                                     <iframe class="embed-responsive-item mt-3"
-                                            src="@ViewBag.videoEmbLinks[Model.Id].Item2"
+                                            src="@ViewBag.videoEmbLinks.Item2"
                                             title="YouTube video player"
                                             frameborder="0"></iframe>
 
                                 }
-                                else if (ViewBag.videoEmbLinks[Model.Id].Item1 == "tiktok")
+                                else if (ViewBag.videoEmbLinks.Item1 == "tiktok")
                                 {
                                     // var requestResponse = new Microsoft.AspNetCore.Html.HtmlString((ViewBag.videoEmbLinks[task.Id].Item2));
-                                    var requestResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(ViewBag.videoEmbLinks[Model.Id].Item2);
+                                    var requestResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(ViewBag.videoEmbLinks.Item2);
 
                                     var tiktokEmbeded = new Microsoft.AspNetCore.Html.HtmlString(requestResponse["html"]);
                                     <div>@tiktokEmbeded</div>
