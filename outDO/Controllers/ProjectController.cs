@@ -116,7 +116,7 @@ namespace outDO.Controllers
             return View(project);
         }
 
-        private bool isUserAuthorized(string projectId, string userId) //daca este organizatorul proiectului
+        private bool isUserAuthorized(string projectId, string? userId) //daca este organizatorul proiectului
         {
             var userIds = from p in db.Projects
                           join pm in db.ProjectMembers on
@@ -124,6 +124,11 @@ namespace outDO.Controllers
                           where p.Id == projectId
                           where pm.ProjectRole == "Organizator"
                           select pm.UserId;
+            if (!userIds.Any()) //imi dadea eroare ca era gol usersID si nu puteam face First()
+            {
+                return false;
+            }
+
 
             if (userIds.Contains(userId))
             {

@@ -146,11 +146,11 @@ namespace outDO.Controllers
 
             ViewBag.videoEmbLinks = videoEmbLinks;
 
-            var tasks = db.Tasks
+            var tasksM = db.Tasks
             .Include(t => t.TaskMembers)
             .Where(t => t.BoardId == board.Id)
             .ToList();
-            ViewBag.Tasks = tasks;
+            ViewBag.Tasks = tasksM;
 
 
             return View(board);

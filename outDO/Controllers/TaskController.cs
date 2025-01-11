@@ -105,12 +105,12 @@ namespace outDO.Controllers
                          p.Id equals pm.ProjectId
                          where t.Id == taskId
                          select pm.UserId;
-            if (userId.First() != userManager.GetUserId(User))
+            if (userId.ToList().Contains(userManager.GetUserId(User))) 
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         [Authorize]
