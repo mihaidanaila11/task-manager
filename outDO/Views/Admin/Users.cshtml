@@ -41,10 +41,11 @@
 		@foreach (var user in ViewBag.users)
 		{
 			<div class="card mt-3">
+				<div class="card-body">
 				<div class="row align-items-center mb-2 card-body">
 					<div class="col-auto ">
-						<h5>@user.UserName</h5>
-						<p>@user.Email</p>
+						<h5>@user.Item1.UserName</h5>
+					<p>@user.Item1.Email</p>
 					</div>
 					<div class="col text-end ">
 						<a class="btn btn-outline-primary" asp-controller="Admin" asp-action="AddAdmin" asp-route-id="@user.Id">Make Admin</a>
@@ -70,8 +71,16 @@
 							</div>
 						</div>
 
-						<a class="btn btn-outline-primary" asp-controller="Admin" asp-action="BanUser" asp-route-id="@user.Id">Ban User</a>
+						@if (!user.Item2)
+					{
+						<a class="btn btn-danger" asp-controller="Admin" asp-action="BanUser" asp-route-id="@user.Item1.Id">Ban User</a>
+					}
+					else
+					{
+						<a class="btn btn-info" asp-controller="Admin" asp-action="UnBanUser" asp-route-id="@user.Item1.Id">UnBan User</a>
+					}
 					</div>
+
 				</div>
 			</div>
 		}

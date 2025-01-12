@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using outDO.Models;
 using Task = System.Threading.Tasks.Task;
+using outDO.Data;
 
 namespace outDO.Areas.Identity.Pages.Account
 {
@@ -23,11 +24,13 @@ namespace outDO.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly ApplicationDbContext _db;
 
-        public LoginModel(SignInManager<User> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<User> signInManager, ILogger<LoginModel> logger, ApplicationDbContext db)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _db = db;
         }
 
         /// <summary>
@@ -107,6 +110,12 @@ namespace outDO.Areas.Identity.Pages.Account
             returnUrl ??= Url.Content("~/");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            if (_db.BannedEmails.Where(b => b.email == Input.UserName).ToList().Count > 0)
+            {
+                ModelState.AddModelError(string.Empty, "This Email has been banned");
+                return Page();
+            }
 
             if (ModelState.IsValid)
             {
