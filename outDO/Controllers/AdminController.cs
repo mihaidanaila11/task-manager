@@ -58,11 +58,11 @@ namespace outDO.Controllers
             ViewBag.admins = admins;
 
             //user ii inafar de admini
-            var users = from u in db.Users
+           /* var users = from u in db.Users
                         where !admins.Contains(u)
                         select u;
 
-            ViewBag.UsersV = userManager.Users;
+            ViewBag.UsersV = userManager.Users;*/
 
             return View();
         }
