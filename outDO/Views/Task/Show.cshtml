@@ -6,10 +6,22 @@
 @using outDO.Models
 @using Newtonsoft.Json
 
+@section Styles {
+    <style>
+
+        h1, h2, h3 {
+            color: black !important;
+        }
+
+    </style>
+
+
+}
+
 <a class="btn btn-success mb-3" asp-controller="Task" asp-action="GoBack" asp-route-id="@Model.Id">Go Back</a>
 
 
-<div class="container h-100 d-flex justify-content-center">
+<div class="container h-100">
     <div class="col-10 justify-content-center bg-light p-3 rounded">
         <h1>@Model.Title</h1>
         <hr />
@@ -70,19 +82,13 @@
         {
             <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@Model.Id">Delete Task</a>
         }
-        <div class="d-flex justify-content-around">
-            <p class="d-inline"><strong>Start date</strong> @Model.DateStart.Value.ToString("dd/MM/yyyy/")</p>
-            <p class="d-inline"><strong>Deadline</strong>: @Model.DateFinish.Value.ToString("dd/MM/yyyy/")</p>
-        </div>
     </div>
 
     
 </div>
 
-<hr />
-<hr />
 
-<h3 class="mt-5">Comments</h3>
+<h3 class="mt-5" style="color: #F6F6F6 !important">Comments</h3>
 <form asp-controller="Task" asp-action="Show" asp-route-id="@Model.Id" method="post"
       class="col-6 bg-light p-3 rounded">
     <div>
@@ -120,7 +126,7 @@
                 }
                 @if (ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
                 {
-                    <button class="btn" onClick="toggleDiv('@com.Item2.Id')"><i class="bi bi-pen"></i></button>
+                    <button class="btn" onClick="toggleDiv('@com.Item2.Id')"><i class="bi bi-pen" style="color: black !important"></i></button>
                     <!--heheeee avem iconite i love them-->
                 }
             </div>

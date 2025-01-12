@@ -4,12 +4,20 @@
     ViewData["Title"] = "Register";
 }
 
-<h1>@ViewData["Title"]</h1>
+@section Styles{
+    <style>
+        body{
+            background: #1f0547 !important;
+        }
+    </style>
+}
 
-<div class="row">
+
+<div class="row d-flex justify-content-center">
+    <h1 style="color:#F6F6F6 !important">@ViewData["Title"]</h1>
     <div class="col-md-4">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
+            <h2 style="color:#F6F6F6 !important">Create a new account.</h2>
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
@@ -39,7 +47,7 @@
     </div>
     <div class="col-md-6 col-md-offset-2">
         <section>
-            <h3>Use another service to register.</h3>
+            <h3 style="color:#F6F6F6 !important">Use another service to register.</h3>
             <hr />
             @{
                 if ((Model.ExternalLogins?.Count ?? 0) == 0)
