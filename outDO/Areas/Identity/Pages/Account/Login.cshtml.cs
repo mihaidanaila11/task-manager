@@ -107,15 +107,14 @@ namespace outDO.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
+			if (_db.BannedEmails.Where(b => b.email == Input.UserName).ToList().Count > 0)
+			{
+				ModelState.AddModelError(string.Empty, "This Email has been banned");
+				return Page();
+			}
+			returnUrl ??= Url.Content("~/");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            if (_db.BannedEmails.Where(b => b.email == Input.UserName).ToList().Count > 0)
-            {
-                ModelState.AddModelError(string.Empty, "This Email has been banned");
-                return Page();
-            }
 
             if (ModelState.IsValid)
             {
