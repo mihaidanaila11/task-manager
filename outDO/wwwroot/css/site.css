@@ -120,3 +120,9 @@ h1, h2, h3 {
         color:white;
         background-color: transparent !important;
         border: 2px solid;
+        background-color: #4b767a !important;
+    }
+
+#manage_nav a{
+    color: #F6F6F6 !important;
+}
