@@ -148,12 +148,14 @@ namespace outDO.Controllers
                 return StatusCode(403);
             }
 
+            bool pag = isUserAuthorized(id);
+
             Project project = db.Projects.Find(id);
 
             db.Projects.Remove(project);
             db.SaveChanges();
 
-            if(isUserAuthorized(id))
+            if(pag)
             {
                 return RedirectToAction("Index");
             }

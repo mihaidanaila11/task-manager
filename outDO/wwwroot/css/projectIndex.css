@@ -2,5 +2,13 @@
 
 
 #_layoutHeader {
-    background: linear-gradient(90deg, rgba(123,29,166,1) 0%, rgba(22,78,42,1) 100%) !important;
+    background: linear-gradient(90deg, rgba(70, 17, 156,1) 0%, rgba(114, 18, 122,1) 35%, rgba(22, 133, 178,1) 65%, rgba(22, 178, 55,1) 100%) !important;
 }
+
+.project-card {
+    background: transparent !important;
+    color: aliceblue;
+    border: 2px solid;
+    
+}
+
