@@ -404,6 +404,12 @@ namespace outDO.Controllers
 
             ViewBag.comments = userComments;
 
+            var tasksM = db.Tasks
+            .Include(t => t.TaskMembers)
+            .Where(t => t.Id == Id)
+            .ToList();
+            ViewBag.Tasks = tasksM;
+
 
             return View(task);
         }
