@@ -13,14 +13,18 @@ namespace outDO.Controllers
         private readonly UserManager<User> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IWebHostEnvironment _env;
+        private readonly SignInManager<User> signInManager;
+
         public AdminController(ApplicationDbContext context, UserManager<User> _userManager,
-            RoleManager<IdentityRole> _roleManager, IWebHostEnvironment env)
+            RoleManager<IdentityRole> _roleManager, IWebHostEnvironment env, SignInManager<User> _signInManager)
         {
             db = context;
             userManager = _userManager;
             roleManager = _roleManager;
             _env = env;
+            signInManager = _signInManager;
         }
+
 
         public IActionResult Index()
         {
@@ -29,6 +33,18 @@ namespace outDO.Controllers
 
         public IActionResult Users()
         {
+            //toti adminii  inafara de user ul curent
+            var admins = userManager.GetUsersInRoleAsync("Admin").Result;
+            //inafara de user ul curent
+            admins.Remove(userManager.GetUserAsync(User).Result);
+
+            ViewBag.admins = admins;
+
+            //user ii inafar de admini
+            var users = from u in db.Users
+                        where !admins.Contains(u)
+                        select u;
+
             ViewBag.Users = userManager.Users;
             return View();
         }
@@ -61,5 +77,41 @@ namespace outDO.Controllers
         {
             return RedirectToAction("Index");
         }
+
+
+        public IActionResult AddAdmin(string id)
+        {
+            User user = userManager.FindByIdAsync(id).Result;
+            userManager.AddToRoleAsync(user, "Admin").Wait();
+            return RedirectToAction("Users");
+        }
+
+        public IActionResult RemoveAdmin(string id)
+        {
+            var admins = userManager.GetUsersInRoleAsync("Admin").Result;
+
+            if(admins.Count() == 1)
+            {
+                TempData["AdminAlertMessage"] = "The website must have at least one administrator. Assign a different administrator if you wish to step down.";
+                return RedirectToAction("Users");
+            }
+
+            User user = userManager.FindByIdAsync(id).Result;
+            userManager.RemoveFromRoleAsync(user, "Admin").Wait();
+            //log off the user
+            signInManager.SignOutAsync().Wait();
+            return Redirect("/Home/Index");
+        }
+
+        public IActionResult DeleteUser(string id)
+        {
+            User user = userManager.FindByIdAsync(id).Result;
+            userManager.DeleteAsync(user).Wait();
+            return RedirectToAction("Users");
+        }
+
+       
+
+
     }
 }

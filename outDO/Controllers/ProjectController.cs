@@ -328,7 +328,7 @@ namespace outDO.Controllers
                               where pm.ProjectRole == "Organizator"
                               select pm.UserId).ToList();
 
-            if (!User.IsInRole("Admin") && organisers.Count <= 1) //daca e admin face ce vrea
+            if (!User.IsInRole("Admin") && organisers.Count == 1) //daca e admin face ce vrea
             {
                 TempData["AlertMessage"] = "The project must have at least one organiser. Assign a different organiser if you wish to step down";
                 return RedirectToAction("AddMembers", new { id = id, userId = userId });
