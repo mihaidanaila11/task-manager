@@ -1,13 +1,13 @@
 ﻿@model outDO.Models.Comment
 <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-<label asp-for="Content">Continut comentariu</label>
+<label asp-for="Content">Add a comment:</label>
 <br />
 <textarea class="form-control" name="Content"></textarea>
 <span asp-validation-for="Content" class="text-danger"></span>
 
 <br />
 <br />
-<button class="btn btn-success " type="submit">
-    Adauga comentariul
+<button class="btn btn-success" style="color:darkblue !important" type="submit">
+    Post Comment
 </button>
 

@@ -1,11 +1,19 @@
-﻿ 
+﻿
+@section Styles {
+
+	<link href="@Url.Content("~/css/adminIndex.css")" rel="stylesheet" type="text/css" />
+	 
+} 
+
 <body>
 <div>
-	<h2 class="display-2">ADMINISTRATION PANEL</h2>
+		<h2 class="display-2" ><small><i class="bi bi-pen" style="max-height:30px"></i></small>ADMINISTRATION PANEL</h2>
 	<hr />
+	<div class="d-grid">
 	<!--manage projects-->
-	<h3><a class="btn btn-outline-primary btn-lg btn-block" asp-controller="Admin" asp-action="Projects">Manage Projects</a></h3>
+	<h3 class="row"><a class="btn btn-info btn-lg btn-block" asp-controller="Admin" asp-action="Projects">Manage Projects</a></h3>
 	<!--manage users-->
-	<h3><a class="btn btn-outline-primary btn-lg btn-block" asp-controller="Admin" asp-action="Users">Manage Users</a></h3>
+	<h3 class="row"><a class="btn btn-warning btn-lg btn-block" asp-controller="Admin" asp-action="Users">Manage Users</a></h3>
+	</div>
 </div>
 </body>

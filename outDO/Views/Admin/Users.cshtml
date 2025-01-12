@@ -7,13 +7,13 @@
 		<h2 class="display-2">USER MANAGEMENT</h2>
 		<a class="btn btn-success mb-3" asp-controller="Admin" asp-action="GoBack">Go Back</a>
 		<h2>Admins</h2>
-		<div class="card mt-3">
-			<div class="row align-items-center mb-2 card-body">
+		<div class="card mt-3 p-3">
+			<div class="row align-items-center mb-2">
 				<div class="col-auto ">
 					<h5>@UserManager.GetUserName(User)</h5>
 				</div>
 				<div class="col text-end ">
-					<a class="btn btn-outline-primary" asp-controller="Admin" asp-action="RemoveAdmin" asp-route-id="@UserManager.GetUserId(User)">Step Down From Admin</a>
+					<a class="btn btn-danger" asp-controller="Admin" asp-action="RemoveAdmin" asp-route-id="@UserManager.GetUserId(User)">Step Down From Admin</a>
 					@if (TempData["AdminAlertMessage"] != null)
 					{
 						<div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -28,7 +28,7 @@
 		@foreach (var admin in ViewBag.admins)
 		{
 			<div class="card mt-3">
-				<div class="row align-items-center mb-2 card-body">
+				<div class="row align-items-center mb-2">
 					<div class="col-auto ">
 						<h5>@admin.UserName</h5>
 						<p>@admin.Email</p>
@@ -42,15 +42,15 @@
 		{
 			<div class="card mt-3">
 				<div class="card-body">
-					<div class="row align-items-center mb-2 card-body">
+					<div class="row align-items-center mb-2">
 						<div class="col-auto ">
 							<h5>@user.Item1.UserName</h5>
 							<p>@user.Item1.Email</p>
 						</div>
 						<div class="col text-end ">
-							<a class="btn btn-outline-primary" asp-controller="Admin" asp-action="AddAdmin" asp-route-id="@user.Item1.Id">Make Admin</a>
+							<a class="btn btn-sucess" asp-controller="Admin" asp-action="AddAdmin" asp-route-id="@user.Item1.Id">Make Admin</a>
 
-							<a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal-@user.Item1.Id">Delete User</a>
+							<a class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deleteUserModal-@user.Item1.Id">Delete User</a>
 
 							<!-- pop up daca esti sigur-->
 							<div class="modal fade" id="deleteUserModal-@user.Item1.Id" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
