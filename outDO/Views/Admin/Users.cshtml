@@ -48,12 +48,12 @@
 					<p>@user.Item1.Email</p>
 					</div>
 					<div class="col text-end ">
-						<a class="btn btn-outline-primary" asp-controller="Admin" asp-action="AddAdmin" asp-route-id="@user.Id">Make Admin</a>
+						<a class="btn btn-outline-primary" asp-controller="Admin" asp-action="AddAdmin" asp-route-id="@user.Item1.Id">Make Admin</a>
 						
-						<a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal-@user.Id">Delete User</a>
+							<a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal-@user.Item1.Id">Delete User</a>
 
 						<!-- pop up daca esti sigur-->
-						<div class="modal fade" id="deleteUserModal-@user.Id" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+							<div class="modal fade" id="deleteUserModal-@user.Item1.Id" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
 							<div class="modal-dialog">
 								<div class="modal-content">
 									<div class="modal-header">
@@ -65,7 +65,7 @@
 									</div>
 									<div class="modal-footer">
 										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-										<a class="btn btn-danger" asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Id">Delete</a>
+											<a class="btn btn-danger" asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Item1.Id">Delete</a>
 									</div>
 								</div>
 							</div>
@@ -82,6 +82,7 @@
 					</div>
 
 				</div>
+			</div>
 			</div>
 		}
 
