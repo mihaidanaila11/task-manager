@@ -18,7 +18,10 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    background: linear-gradient(45deg, rgba(123,29,166,1) 27%, rgba(63,68,211,1) 70%, rgba(75,159,168,1) 100%) !important;
+    margin-bottom: 60px;
+    font-family: monospace, 'Courier New' !important;
+    font-optical-sizing: auto !important;
 }
 
 .card-body:hover {
@@ -28,3 +31,31 @@ body {
 .card-body{
     transition: ease-out 0.2s;
 }
+
+#_layoutHeader {
+    background: linear-gradient(90deg, rgba(123,29,166,1) 0%, rgba(63,68,211,1) 100%) !important;
+    
+}
+#_layoutHeader a, button {
+        color: #F6F6F6 !important;
+}
+
+.btn-primary {
+    background-color: #70d52d !important;
+}
+
+.navbar-light {
+    color: #F6F6F6 !important;
+}
+
+h1, h2, h3 {
+    color: #F6F6F6 !important;
+}
+
+.btn-success {
+    background-color: #6eafb5;
+}
+
+    .btn-success:hover {
+        background-color: #4b767a !important;
+    }

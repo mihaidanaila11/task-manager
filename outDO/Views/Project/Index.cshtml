@@ -3,6 +3,10 @@
 @inject UserManager<User> UserManager
 @inject IProjectService ProjectService
 
+@section Styles {
+    <link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
+}
+
 <h2>Afisare Proiecte</h2>
 
 <hr />
@@ -13,7 +17,7 @@
     {
         <div class="card col-3 text-center">
             <div class="m-3">
-                <h3>@project.Name</h3>
+                <h4>@project.Name</h4>
                 <a class="btn btn-success" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">View</a>
 
                 <!-- daca e organizator poate sa stearga sau sa editeze-->
