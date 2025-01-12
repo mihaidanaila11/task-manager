@@ -53,10 +53,73 @@ h1, h2, h3 {
 }
 
 .btn-success {
-    background-color: #6eafb5;
+    color: #123b21;
+    background-color: #89dce4;
+    border: 2px solid #89dce4;
+    border-radius: 5px;
+    box-sizing: border-box;
 }
 
     .btn-success:hover {
+        background-color: transparent !important;
+        border:2px solid;
+    }
+
+.btn-success2 {
+    color: white;
+    background-color: #087ca7;
+    border: 2px solid #087ca7;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+    .btn-success2:hover {
+        color: white;
+        background-color: transparent !important;
+        border-color:white;
+    }
+
+.btn-warning {
+    color: white;
+    background-color: #d165e9;
+    border: 2px solid #d165e9;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+    .btn-warning:hover {
+        color: white;
+        background-color: transparent !important;
+        border: 2px solid;
+    }
+
+
+.btn-danger {
+    color: white;
+    background-color: #7f0aa9;
+    border: 2px solid #7f0aa9;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+    .btn-danger:hover {
+        color: white;
+        background-color: transparent !important;
+        border: 2px solid;
+    }
+
+.btn-info {
+    color: #123b21;
+    background-color: #70d52d;
+    border: 2px solid #70d52d;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+    .btn-info:hover {
+        color:white;
+        background-color: transparent !important;
+        border: 2px solid;
         background-color: #4b767a !important;
     }
 

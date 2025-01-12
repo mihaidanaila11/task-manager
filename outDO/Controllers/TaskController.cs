@@ -287,11 +287,11 @@ namespace outDO.Controllers
 
             if (!mediaCheck)
             {
-                if (task.Video == null)
+                if (requestTask.Video == null)
                 {
                     ModelState.AddModelError(string.Empty, "At least one media element");
 
-                    return View(task);
+                    return View(requestTask);
                 }
             }
 

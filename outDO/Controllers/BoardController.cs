@@ -87,14 +87,12 @@ namespace outDO.Controllers
             ViewBag.Tasks = paginatedTasks;
             ViewBag.PaginationBaseUrl ="?page";
 
-            ViewBag.Tasks = paginatedTasks;
+            ViewBag.paginatedTasks = paginatedTasks;
 
             Dictionary<string, Tuple<string, string>> videoEmbLinks = new Dictionary<string, Tuple<string, string>>();
 
             foreach(var paginatedTask in paginatedTasks)
             {
-
-
                 if (paginatedTask.Video != null)
                 {
                     Uri videoUri = new Uri(paginatedTask.Video);
