@@ -12,8 +12,16 @@
 		{
 			<div class="card mt-3">
 				<div class="card-body">
-					<h5>@user.UserName</h5>
-					<p>@user.Email</p>
+					<h5>@user.Item1.UserName</h5>
+					<p>@user.Item1.Email</p>
+					@if (!user.Item2)
+					{
+						<a class="btn btn-danger" asp-controller="Admin" asp-action="BanUser" asp-route-id="@user.Item1.Id">Ban User</a>
+					}
+					else
+					{
+						<a class="btn btn-info" asp-controller="Admin" asp-action="UnBanUser" asp-route-id="@user.Item1.Id">UnBan User</a>
+					}
 				</div>
 			</div>
 		}
