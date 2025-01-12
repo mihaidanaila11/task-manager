@@ -41,5 +41,6 @@ namespace outDO.Data
         public DbSet<Board> Boards { get; set; }
         public DbSet<Comment>  Comments { get; set; }
         public DbSet<outDO.Models.Task> Tasks { get; set; } //am pus asa ca imi dadea ceva abiguu
+        public DbSet<BannedEmail> BannedEmails { get; set; }
     }
 }

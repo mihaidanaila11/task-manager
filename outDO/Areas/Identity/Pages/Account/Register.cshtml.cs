@@ -136,6 +136,12 @@ namespace outDO.Areas.Identity.Pages.Account
                     return Page();
                 }
 
+                if (_db.BannedEmails.Where(b => b.email == Input.UserName).ToList().Count < 0)
+                {
+                    ModelState.AddModelError(string.Empty, "This Email has been banned");
+                    return Page();
+                }
+
                 await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
 
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
