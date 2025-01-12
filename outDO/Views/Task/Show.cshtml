@@ -70,12 +70,16 @@
         {
             <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@Model.Id">Delete Task</a>
         }
+        <div class="d-flex justify-content-around">
+            <p class="d-inline"><strong>Start date</strong> @Model.DateStart.Value.ToString("dd/MM/yyyy/")</p>
+            <p class="d-inline"><strong>Deadline</strong>: @Model.DateFinish.Value.ToString("dd/MM/yyyy/")</p>
+        </div>
     </div>
 
     
 </div>
 
-
+<hr />
 <hr />
 
 <h3 class="mt-5">Comments</h3>
@@ -108,9 +112,9 @@
             <h5>@(com.Item1 + " - " + @com.Item2.Date.ToString("dd/MM/yyyy - HH:MM"))</h5>
             <div id="@(com.Item2.Id + "commentContent")">
                 <p>@com.Item2.Content</p>
-                <!--daca e user-ul poate sa editeze sau sa stearga. si organizatorul poate sa stearga-->
+                <!--daca e user-ul poate sa editeze sau sa stearga. si organizatorul SAU ADMINULL poate sa stearga-->
                 @if (ProjectService.isUserOrganiserComment(com.Item2.Id, UserManager.GetUserId(User)) ||
-               ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
+               ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)) || User.IsInRole("Admin"))
                 {
                     <a class="btn" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id"><i class="bi bi-trash3"></i></a>
                 }

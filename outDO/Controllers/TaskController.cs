@@ -122,7 +122,7 @@ namespace outDO.Controllers
 
         private bool isUserAuthorized(string taskId)
         {
-            var userId = from t in db.Tasks
+            var userIds = from t in db.Tasks
                          join b in db.Boards on
                          t.BoardId equals b.Id
                          join p in db.Projects on
@@ -131,7 +131,12 @@ namespace outDO.Controllers
                          p.Id equals pm.ProjectId
                          where t.Id == taskId
                          select pm.UserId;
-            if (userId.ToList().Contains(userManager.GetUserId(User))) 
+            if (!userIds.Any())
+            {
+                return false;
+            }
+
+            if (userIds.Contains(userManager.GetUserId(User)))
             {
                 return true;
             }
