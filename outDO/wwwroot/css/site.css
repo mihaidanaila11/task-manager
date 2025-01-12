@@ -24,11 +24,11 @@ body {
     font-optical-sizing: auto !important;
 }
 
-.card-body:hover {
+.card:hover {
     box-shadow: 0px 18px 30px -4px rgba(0,0,0,0.75) !important;
 }
 
-.card-body{
+.card{
     transition: ease-out 0.2s;
 }
 
