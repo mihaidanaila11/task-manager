@@ -59,3 +59,7 @@ h1, h2, h3 {
     .btn-success:hover {
         background-color: #4b767a !important;
     }
+
+#manage_nav a{
+    color: #F6F6F6 !important;
+}
