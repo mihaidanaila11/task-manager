@@ -4,38 +4,44 @@
 @inject IProjectService ProjectService
 
 @section Styles {
-    <link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
+	<link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
 }
+<body>
+<div class="m-3 pt-4">
+	<h2 style="font-family:'Courier New'; font-weight:600; color:#89dce4;">
+		☆ Afisare Proiecte
+	</h2>
 
-<h2>Afisare Proiecte</h2>
+	<br />
+	<a class="btn btn-lg btn-success2" Project" asp-action="New">Add Project</a>
+</div>
+<div class="d-flex justify-content-around mt-5">
+	@foreach (var project in ViewBag.Projects)
+	{
+		<div class="card col-3 text-center project-card">
+			<div class="m-3">
+				<h4>@project.Name</h4>
+				<div class="container">
+				<div class="row mb-2"><a class="btn btn-success" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">View</a></div>
 
-<hr />
-<a class="btn btn-success" asp-controller="Project" asp-action="New">Add Project</a>
+				<!-- daca e organizator poate sa stearga sau sa editeze-->
+				@if (ProjectService.isUserOrganiserProject(project.Id, UserManager.GetUserId(User)))
+				{
+						if (!User.IsInRole("Admin"))
+						{ //ca are pagina lui personala
+							<div class="row mb-2"><a class="btn btn-info" asp-controller="Project" asp-action="AddMembers" asp-route-id="@project.Id">Manage Members</a></div>
+						}
+						<div class="row mb-2"><a class="btn btn-warning" asp-controller="Project" asp-action="Edit" asp-route-id="@project.Id">Edit Project</a></div>
+						<div class="row mb-2"><a class="btn btn-danger" asp-controller="Project" asp-action="Delete" asp-route-id="@project.Id">Delete Project</a></div>
+				}
+				</div>
 
-<div class="d-flex justify-content-around mt-3">
-    @foreach(var project in ViewBag.Projects)
-    {
-        <div class="card col-3 text-center">
-            <div class="m-3">
-                <h4>@project.Name</h4>
-                <a class="btn btn-success" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">View</a>
-
-                <!-- daca e organizator poate sa stearga sau sa editeze-->
-                @if (ProjectService.isUserOrganiserProject(project.Id, UserManager.GetUserId(User)))
-                {
-                    <a class="btn btn-danger" asp-controller="Project" asp-action="Delete" asp-route-id="@project.Id" >Delete Project</a>
-                    <a class="btn btn-warning" asp-controller="Project" asp-action="Edit" asp-route-id="@project.Id"  >Edit Project</a>
-
-                    if (!User.IsInRole("Admin"))
-                    { //ca are pagina lui personala
-                        <a class="btn btn-info" asp-controller="Project" asp-action="AddMembers" asp-route-id="@project.Id" >Manage Members</a>
-                    }
-                }
-
-        </div>
-    </div>
-}
+			</div>
+		</div>
+	}
 
 </div>
-
-<partial name="PaginationNav"></partial>
+<div class="m-4">
+	<partial name="PaginationNav"></partial>
+</div>
+</body>

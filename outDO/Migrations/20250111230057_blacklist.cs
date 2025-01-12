@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace outDO.Migrations
 {
     /// <inheritdoc />
-    public partial class update_main : Migration
+    public partial class blacklist : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,6 +23,17 @@ namespace outDO.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BannedEmails",
+                columns: table => new
+                {
+                    email = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BannedEmails", x => x.email);
                 });
 
             migrationBuilder.CreateTable(
@@ -85,7 +96,7 @@ namespace outDO.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BoardId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateStart = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DateFinish = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -359,6 +370,9 @@ namespace outDO.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "BannedEmails");
 
             migrationBuilder.DropTable(
                 name: "Comments");

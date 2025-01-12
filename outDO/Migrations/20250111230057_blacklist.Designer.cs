@@ -12,8 +12,8 @@ using outDO.Data;
 namespace outDO.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250110154747_task_videos")]
-    partial class task_videos
+    [Migration("20250111230057_blacklist")]
+    partial class blacklist
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -162,6 +162,16 @@ namespace outDO.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("outDO.Models.BannedEmail", b =>
+                {
+                    b.Property<string>("email")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("email");
+
+                    b.ToTable("BannedEmails");
+                });
+
             modelBuilder.Entity("outDO.Models.Board", b =>
                 {
                     b.Property<string>("Id")
@@ -184,11 +194,8 @@ namespace outDO.Migrations
 
             modelBuilder.Entity("outDO.Models.Comment", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -197,10 +204,8 @@ namespace outDO.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TaskId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TaskId1")
+                    b.Property<string>("TaskId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserId")
@@ -209,7 +214,7 @@ namespace outDO.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TaskId1");
+                    b.HasIndex("TaskId");
 
                     b.HasIndex("UserId");
 
@@ -268,6 +273,7 @@ namespace outDO.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Media")
@@ -336,6 +342,9 @@ namespace outDO.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("TaskId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -355,6 +364,8 @@ namespace outDO.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("TaskId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -424,8 +435,10 @@ namespace outDO.Migrations
             modelBuilder.Entity("outDO.Models.Comment", b =>
                 {
                     b.HasOne("outDO.Models.Task", "Task")
-                        .WithMany()
-                        .HasForeignKey("TaskId1");
+                        .WithMany("Comments")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("outDO.Models.User", "User")
                         .WithMany("Comments")
@@ -468,11 +481,25 @@ namespace outDO.Migrations
                     b.Navigation("Board");
                 });
 
+            modelBuilder.Entity("outDO.Models.User", b =>
+                {
+                    b.HasOne("outDO.Models.Task", null)
+                        .WithMany("TaskMembers")
+                        .HasForeignKey("TaskId");
+                });
+
             modelBuilder.Entity("outDO.Models.Project", b =>
                 {
                     b.Navigation("Boards");
 
                     b.Navigation("ProjectMembers");
+                });
+
+            modelBuilder.Entity("outDO.Models.Task", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("TaskMembers");
                 });
 
             modelBuilder.Entity("outDO.Models.User", b =>

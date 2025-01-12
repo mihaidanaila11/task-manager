@@ -7,13 +7,17 @@
 @using Newtonsoft.Json
 
 @section Styles {
-    <style>
 
-        h1, h2, h3 {
-            color: black !important;
-        }
 
-    </style>
+	<link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
+	<style>
+		body {
+			background: linear-gradient(45deg, rgba(22, 178, 55,1) 0%, rgba(22, 133, 178,1) 25%,rgba(70, 17, 156,1) 50%, rgba(22, 133, 178,1) 75%, rgba(22, 178, 55,1) 100%) !important;
+			margin-bottom: 60px;
+			font-family: monospace, 'Courier New' !important;
+			font-optical-sizing: auto !important;
+		}
+	</style>
 
 
 }
@@ -21,129 +25,150 @@
 <a class="btn btn-success mb-3" asp-controller="Task" asp-action="GoBack" asp-route-id="@Model.Id">Go Back</a>
 
 
-<div class="container h-100">
-    <div class="col-10 justify-content-center bg-light p-3 rounded">
-        <h1>@Model.Title</h1>
-        <hr />
-        <div class="container">
-            <div class="row">
-                <div class="col-6 d-flex flex-column text-break">
-                    <h3>Status</h3>
-                    <p>@Model.Status</p>
-                    <h3>Description</h3>
-                    <span class="mw-100">@Model.Description</span>
-                </div>
+<div class="container h-100 ">
+	<div class="col-10 justify-content-center bg-light p-3 rounded project-card">
+		<h1>✧ @Model.Title</h1>
+		<hr />
+		<div class="container">
+			<div class="row">
+				<div class="col-6 d-flex flex-column text-break">
+					<h3>Status</h3>
+					<p>@Model.Status</p>
+					<h3>Description</h3>
+					<span class="mw-100">@Model.Description</span>
+				</div>
 
-                <div class="col-6">
-                    @if (Model.Media != null)
-                    {
-                        <img src="@Model.Media" class="img-fluid" />
-                    }
+				<div class="col-6">
+					@if (Model.Media != null)
+					@if (Model.Media != null)
+					{
+						<img src="@Model.Media" class="img-fluid" />
+					}
 
-                    @if (Model.Video != null)
-                    {
-                        <div class="embed-responsive embed-responsive-16by9">
-                            @{
-                                if (ViewBag.videoEmbLinks.Item1 == "youtube")
-                                {
+					@if (Model.Video != null)
+					{
+						<div class="embed-responsive embed-responsive-16by9">
+							@{
+								if (ViewBag.videoEmbLinks.Item1 == "youtube")
+								{
 
-                                    <iframe class="embed-responsive-item mt-3"
-                                            src="@ViewBag.videoEmbLinks.Item2"
-                                            title="YouTube video player"
-                                            frameborder="0"></iframe>
+									<iframe class="embed-responsive-item mt-3"
+											src="@ViewBag.videoEmbLinks.Item2"
+											title="YouTube video player"
+											frameborder="0"></iframe>
 
-                                }
-                                else if (ViewBag.videoEmbLinks.Item1 == "tiktok")
-                                {
-                                    // var requestResponse = new Microsoft.AspNetCore.Html.HtmlString((ViewBag.videoEmbLinks[task.Id].Item2));
-                                    var requestResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(ViewBag.videoEmbLinks.Item2);
+								}
+								else if (ViewBag.videoEmbLinks.Item1 == "tiktok")
+								{
+									// var requestResponse = new Microsoft.AspNetCore.Html.HtmlString((ViewBag.videoEmbLinks[task.Id].Item2));
+									var requestResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(ViewBag.videoEmbLinks.Item2);
 
-                                    var tiktokEmbeded = new Microsoft.AspNetCore.Html.HtmlString(requestResponse["html"]);
-                                    <div>@tiktokEmbeded</div>
-                                }
-                            }
-                        </div>
-                    }
+									var tiktokEmbeded = new Microsoft.AspNetCore.Html.HtmlString(requestResponse["html"]);
+									<div>@tiktokEmbeded</div>
+								}
+							}
+						</div>
+					}
 
-                </div>
-            </div>
-            
-        </div>
-        <div class="d-flex justify-content-around">
-            <p class="d-inline"><strong>Start date</strong> @Model.DateStart.Value.ToString("dd/MM/yyyy/")</p>
-            <p class="d-inline"><strong>Deadline</strong>: @Model.DateFinish.Value.ToString("dd/MM/yyyy/")</p>
-        </div>
+				</div>
+			</div>
 
-        @if (ProjectService.isUserTaskMember(Model.Id, UserManager.GetUserId(User)) || ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)))
-        {   //ca sa nu poata si admin ul daca nu e membru la proiect
-            <a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@Model.Id">Edit Task</a>
-        }
-        @if (ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)) || User.IsInRole("Admin"))
-        {
-            <a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@Model.Id">Delete Task</a>
-        }
-    </div>
+		</div>
+		<div class="m-2">
+			<p class="d-inline"><strong>Start date</strong> @Model.DateStart.Value.ToString("dd/MM/yyyy/")</p>
+			<p class="d-inline"><strong>Deadline</strong>: @Model.DateFinish.Value.ToString("dd/MM/yyyy/")</p>
+		</div>
 
-    
+		@if (ProjectService.isUserTaskMember(Model.Id, UserManager.GetUserId(User)) || ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)))
+		{   //ca sa nu poata si admin ul daca nu e membru la proiect
+			<a class="btn btn-warning" asp-controller="Task" asp-action="Edit" asp-route-id="@Model.Id">Edit Task</a>
+		}
+		@if (ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)) || User.IsInRole("Admin"))
+		{
+			<a class="btn btn-danger" asp-controller="Task" asp-action="Delete" asp-route-id="@Model.Id">Delete Task</a>
+		}
+
+
+		<hr />
+		<div class="m-3 justify-content-center align-items-center">
+			@if (Model.TaskMembers != null && Model.TaskMembers.Count > 0)
+			{
+				<div>Members:</div>
+				<div>
+					@{
+						foreach (var member in Model.TaskMembers)
+						{
+							<div>@member.UserName</div>
+						}
+					}
+				</div>
+			}
+			else
+			{
+				<p>No members assigned</p>
+			}
+			<hr />
+		</div>
+
+	</div>
+
 </div>
 
+<div class="container h-100">
+	<h3 class="mt-5" style="color: #F6F6F6 !important">Comments</h3>
+	<form asp-controller="Task" asp-action="Show" asp-route-id="@Model.Id" method="post"
+		  class="col-6 bg-light p-3 rounded project-card">
+		<div>
+			<input type="hidden" name="TaskId" value="@Model.Id" />
+			<partial name="CommentForm" model="null" />
+		</div>
+	</form>
 
-<h3 class="mt-5" style="color: #F6F6F6 !important">Comments</h3>
-<form asp-controller="Task" asp-action="Show" asp-route-id="@Model.Id" method="post"
-      class="col-6 bg-light p-3 rounded">
-    <div>
-        <input type="hidden" name="TaskId" value="@Model.Id" />
-        <partial name="CommentForm" model="null" />
-    </div>
-</form>
+	<script>
+		function toggleDiv(divId) {
+			var obj = document.getElementById(divId);
+			var contentDiv = document.getElementById(divId + "commentContent");
+			var form = document.getElementById(divId + "commentEditForm");
 
-<script>
-    function toggleDiv(divId) {
-        var obj = document.getElementById(divId);
-        var contentDiv = document.getElementById(divId + "commentContent");
-        var form = document.getElementById(divId + "commentEditForm");
+			console.log(divId + "commentEditForm");
 
-        console.log(divId + "commentEditForm");
+			form.classList.toggle("d-none");
+			contentDiv.classList.toggle("d-none");
+		}
+	</script>
 
-        form.classList.toggle("d-none");
-        contentDiv.classList.toggle("d-none");
-    }
-</script>
+	@foreach (var com in ViewBag.comments)
+	{
+		<div class="card mt-3  project-card">
 
-@foreach (var com in ViewBag.comments)
-{
-    <div class="card mt-3">
+			<div id="@com.Item2.Id" class="card-body">
+				<h5>@(com.Item1 + " - " + @com.Item2.Date.ToString("dd/MM/yyyy - HH:MM"))</h5>
+				<div id="@(com.Item2.Id + "commentContent")">
+					<p>@com.Item2.Content</p>
+					<!--daca e user-ul poate sa editeze sau sa stearga. si organizatorul SAU ADMINULL poate sa stearga-->
+					@if (ProjectService.isUserOrganiserComment(com.Item2.Id, UserManager.GetUserId(User)) ||
+										ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)) || User.IsInRole("Admin"))
+					{
+						<a class="btn" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id"><i class="bi bi-trash3" style="color:white"></i></a>
+					}
+					@if (ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
+					{
+						<button class="btn" onClick="toggleDiv('@com.Item2.Id')"><i class="bi bi-pen" style="color: white !important"></i></button>
+						<!--heheeee avem iconite i love them-->
+					}
+				</div>
 
-        <div id="@com.Item2.Id" class="card-body">
-            <h5>@(com.Item1 + " - " + @com.Item2.Date.ToString("dd/MM/yyyy - HH:MM"))</h5>
-            <div id="@(com.Item2.Id + "commentContent")">
-                <p>@com.Item2.Content</p>
-                <!--daca e user-ul poate sa editeze sau sa stearga. si organizatorul SAU ADMINULL poate sa stearga-->
-                @if (ProjectService.isUserOrganiserComment(com.Item2.Id, UserManager.GetUserId(User)) ||
-               ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)) || User.IsInRole("Admin"))
-                {
-                    <a class="btn" asp-controller="Comment" asp-action="Delete" asp-route-id="@com.Item2.Id"><i class="bi bi-trash3"></i></a>
-                }
-                @if (ProjectService.isUsersComment(com.Item2.Id, UserManager.GetUserId(User)))
-                {
-                    <button class="btn" onClick="toggleDiv('@com.Item2.Id')"><i class="bi bi-pen" style="color: black !important"></i></button>
-                    <!--heheeee avem iconite i love them-->
-                }
-            </div>
+				<form id="@(com.Item2.Id + "commentEditForm")" class="d-none" method="post"
+					  asp-controller="Comment" asp-action="Edit" asp-route-id="@com.Item2.Id">
+					<div>
+						<input type="hidden" name="TaskId" value="@Model.Id" />
+						<partial name="CommentEditForm" model=com.Item2 />
+						<button type="button" class="btn btn-danger" onClick="toggleDiv('@com.Item2.Id')">Cancel Edit</button>
+					</div>
+				</form>
 
-            <form id="@(com.Item2.Id + "commentEditForm")" class="d-none" method="post"
-                  asp-controller="Comment" asp-action="Edit" asp-route-id="@com.Item2.Id">
-                <div>
-                    <input type="hidden" name="TaskId" value="@Model.Id" />
-                    <partial name="CommentEditForm" model=com.Item2 />
-                    <button type="button" class="btn btn-danger" onClick="toggleDiv('@com.Item2.Id')">Cancel Edit</button>
-                </div>
-            </form>
+			</div>
 
-        </div>
-
-    </div>
-}
-    </div>
-
+		</div>
+	}
 </div>

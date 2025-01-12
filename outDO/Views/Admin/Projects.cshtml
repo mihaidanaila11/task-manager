@@ -1,8 +1,9 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@section Styles {
+
+	<link href="@Url.Content("~/css/adminIndex.css")" rel="stylesheet" type="text/css" />
+
 }
+
 <body>
 	<div>
 		<h2 class="display-2">PROJECT MANAGEMENT</h2>
@@ -12,7 +13,7 @@
 			@foreach (var project in ViewBag.Projects)
 			{
 				<div class="card mt-3">
-				<div class="row align-items-center mb-2 card-body">
+				<div class="row align-items-center mb-2 card">
 					<div class="col-auto ">
 						<h5>@project.Name</h5>
 						<p>
@@ -38,7 +39,7 @@
 
 					</div>
 					<div class="col text-end ">
-						<a class="btn btn-primary" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">Manage Project</a>
+						<a class="btn btn-info" asp-controller="Project" asp-action="Show" asp-route-id="@project.Id">Manage Project</a>
 					</div>
 				</div>
 				</div>

@@ -6,97 +6,87 @@
 @model outDO.Models.Board
 @using Newtonsoft.Json
 
-<h2>@Model.Name</h2>
+@section Styles {
+	<link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
+	<style>
+		body {
+			background: linear-gradient(270deg, rgba(156, 17, 154,1) 0%, rgba(70, 17, 156,1) 65%, rgba(22, 133, 178,1) 100%) !important;
+			margin-bottom: 60px;
+			font-family: monospace, 'Courier New' !important;
+			font-optical-sizing: auto !important;
+		}
+	</style>
+}
+
+
+
+<h2>☾ @Model.Name</h2>
 <hr />
 
 <a class="btn btn-success mb-3" asp-controller="Board" asp-action="GoBack" asp-route-id="@Model.Id">Go Back</a>
 
 @if (ProjectService.isUserOrganiserBoard(@Model.Id, UserManager.GetUserId(User)))
 {
-    <a class="btn btn-success mb-3" asp-controller="Task" asp-action="New" asp-route-id="@Model.Id">Add Task</a>
+	<a class="btn btn-success mb-3" asp-controller="Task" asp-action="New" asp-route-id="@Model.Id">Add Task</a>
 }
 
-<h3>Tasks</h3>
+<h3>✧ Tasks</h3>
 <div class="d-flex justify-content-around mt-3">
-    @foreach (var task in ViewBag.Tasks)
-    {
-        <div class="card col-3 text-center">
-            <div class="m-3">
-                <h4>@task.Title</h4>
-                @if(@task.Description != null)
-                {
-                    <p>@task.Description</p>
-                }
-                <h4>Status: @task.Status</h4>
-                <p>Start date @task.DateStart.ToString("dd/MM/yyyy/")</p>
-                <p>Deadline: @task.DateFinish.ToString("dd/MM/yyyy/")</p>
-                
-                <a class="btn btn-success" asp-controller="Task" asp-action="Show" asp-route-id="@task.Id">View Task</a>
+	@foreach (var task in ViewBag.paginatedTasks)
+	{
+		<div class="card col-3 text-center project-card">
+			<div class="m-3">
+				<h4>@task.Title</h4>
+				@if (@task.Description != null)
+				{
+					<p>@task.Description</p>
+				}
+				<h4>Status: @task.Status</h4>
+				<p>Start date @task.DateStart.ToString("dd/MM/yyyy/")</p>
+				<p>Deadline: @task.DateFinish.ToString("dd/MM/yyyy/")</p>
+				<div class="row mb-2">
+					<a class="btn btn-success" asp-controller="Task" asp-action="Show" asp-route-id="@task.Id">View Task</a>
+				</div>
 
 
 
-                <hr />
-                @if (task.TaskMembers != null && task.TaskMembers.Count >0)
-                {
-                    <p>Members:</p>
-                    <ul>
-                        @{
-                            var index = 0;
-                            foreach (var member in task.TaskMembers)
-                            {
-                                if(index<3)
-                                {
-                                    index += 1;
-                                    <p>@member.UserName</p>
-                                }
-                                else
-                                {
-                                    <p>+more</p>
-                                    break;
-                                }
-                        }   
-                    }
-                </ul>
-            }
-            else
-            {
-                <p>No members assigned</p>
-            }
-      <hr />
-
- @if (task.Media != null)
-                {
-                    <img src="@task.Media" class="img-thumbnail" />
-                }
-
-                @if (task.Video != null)
-                {
-                    <div class="embed-responsive embed-responsive-16by9">
-                        @{
-                            if (ViewBag.videoEmbLinks[task.Id].Item1 == "youtube")
-                            {
-
-                                <iframe class="embed-responsive-item mt-3"
-                                        src="@ViewBag.videoEmbLinks[task.Id].Item2"
-                                        title="YouTube video player"
-                                frameborder="0"></iframe>
-
-                            }
-                            else if (ViewBag.videoEmbLinks[task.Id].Item1 == "tiktok")
-                            {
-                                // var requestResponse = new Microsoft.AspNetCore.Html.HtmlString((ViewBag.videoEmbLinks[task.Id].Item2));
-                                var requestResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(ViewBag.videoEmbLinks[task.Id].Item2);
-
-                                var tiktokEmbeded = new Microsoft.AspNetCore.Html.HtmlString(requestResponse["html"]);
-                                <div>@tiktokEmbeded</div>
-                            }
-                        }
-                    </div>
-                }
-
-        </div>
-    </div>
-}
+				<hr />
+				<div class="m-3 justify-content-center align-items-center">
+					@if (task.TaskMembers != null && task.TaskMembers.Count > 0)
+					{
+						<div>Members:</div>
+						<div>
+							@{
+								var index = 0;
+								foreach (var member in task.TaskMembers)
+								{
+									if (index < 3)
+									{
+										index += 1;
+										<div>@member.UserName</div>
+									}
+									else
+									{
+										<div class="row mb-2">+more</div>
+										break;
+									}
+								}
+							}
+						</div>
+					}
+					else
+					{
+						<p>No members assigned</p>
+					}
+					<hr />
+				</div>
+			</div>
+		</div>
+	}
 
 </div>
 
+
+<div class="m-4">
+	<partial name="PaginationNav"></partial>
+</div>

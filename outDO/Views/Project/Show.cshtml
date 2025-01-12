@@ -5,58 +5,80 @@
 @inject IProjectService ProjectService
 @model outDO.Models.Project
 
-<h2>@Model.Name</h2>
-<hr />
-@if (User.IsInRole("Admin"))
-{
-    <a class="btn btn-success mb-3" asp-controller="Project" asp-action="GoBack">Your Projects</a>
-    <a class="btn btn-success mb-3" asp-controller="Project" asp-action="GoBackAdmin">All Projects</a>
-
-}
-else
-{
-    <a class="btn btn-success mb-3" asp-controller="Project" asp-action="GoBack">Go Back</a>
-
-}
-<!-- daca e organizator are access-->
-@{
-    var isAuthorized = ProjectService.isUserOrganiserProject(@Model.Id, UserManager.GetUserId(User));
+@section Styles {
+	<link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
+	<style>
+		body {
+			background: linear-gradient(90deg, rgba(156, 17, 154,1) 0%, rgba(70, 17, 156,1) 65%, rgba(22, 133, 178,1) 100%) !important;
+			margin-bottom: 60px;
+			font-family: monospace, 'Courier New' !important;
+			font-optical-sizing: auto !important;
+		}
+	</style>
 }
 
-@if (isAuthorized)
-{
-    <a class="btn btn-success mb-3" asp-controller="Board" asp-action="New" asp-route-id="@Model.Id">Add Board</a>
-}
+<h2>☆ @Model.Name</h2>
+<div class="m-3">
+	@if (User.IsInRole("Admin"))
+	{
+		<a class="btn btn-success " asp-controller="Project" asp-action="GoBack">Your Projects</a>
+		<a class="btn btn-success  " asp-controller="Project" asp-action="GoBackAdmin">All Projects</a>
 
-@if (User.IsInRole("Admin"))
-{
-    <a class="btn btn-danger" asp-controller="Project" asp-action="Delete" asp-route-id="@Model.Id">Delete Project</a>
-    <a class="btn btn-info" asp-controller="Project" asp-action="AdminMembers" asp-route-id="@Model.Id">Manage All Project Members</a>
-}
+	}
+	else
+	{
+		<a class="btn btn-success mb-3" asp-controller="Project" asp-action="GoBack">Go Back</a>
 
-<h3>Boards</h3>
+	}
+	<!-- daca e organizator are access-->
+	@{
+		var isAuthorized = ProjectService.isUserOrganiserProject(@Model.Id, UserManager.GetUserId(User));
+	}
+
+	@if (isAuthorized)
+	{
+		<a class="btn btn-success mb-3" asp-controller="Board" asp-action="New" asp-route-id="@Model.Id">Add Board</a>
+	}
+
+	@if (User.IsInRole("Admin"))
+	{
+		<a class="btn btn-danger" asp-controller="Project" asp-action="Delete" asp-route-id="@Model.Id">Delete Project</a>
+		<a class="btn btn-info" asp-controller="Project" asp-action="AdminMembers" asp-route-id="@Model.Id">Manage All Project Members</a>
+	}
+</div>
+<h3>☾ Boards</h3>
 <div class="d-flex justify-content-around mt-3">
-    @foreach (var board in ViewBag.Boards)
-    {
-        <div class="card col-3 text-center">
-            <div class="m-3">
-                <h4>@board.Name</h4>
-                <a class="btn btn-success" asp-controller="Board" asp-action="Show" asp-route-id="@board.Id">View Board</a>
+	@foreach (var board in ViewBag.Boards)
+	{
+		<div class="card col-3 text-center project-card">
+			<div class="m-3">
+				<h4>@board.Name</h4>
+				<div class="row mb-2">
+					<a class="btn btn-success" asp-controller="Board" asp-action="Show" asp-route-id="@board.Id">View Board</a>
+				</div>
 
-                <!-- daca e organizator poate sa stearga sau sa editeze-->
-                @if (isAuthorized || User.IsInRole("Admin"))
-                {
-                    <a class="btn btn-danger" asp-controller="Board" asp-action="Delete" asp-route-id="@board.Id" >Delete Board</a>
-                }
-                @if (isAuthorized)
+				@if (isAuthorized)
 				{
-                    <a class="btn btn-warning" asp-controller="Board" asp-action="Edit" asp-route-id="@board.Id"  >Edit Board</a>
+					<div class="row mb-2">
+						<a class="btn btn-warning" asp-controller="Board" asp-action="Edit" asp-route-id="@board.Id">Edit Board</a>
+					</div>
 				}
-            
-        </div>
-    </div>
-    
-}
+
+				<!-- daca e organizator poate sa stearga sau sa editeze-->
+				@if (isAuthorized || User.IsInRole("Admin"))
+				{
+					<div class="row mb-2">
+						<a class="btn btn-danger" asp-controller="Board" asp-action="Delete" asp-route-id="@board.Id">Delete Board</a>
+						</div>
+				}
+				
+
+			</div>
+		</div>
+
+	}
 </div>
 
-<partial name="PaginationNav"></partial>
+<div class="m-4">
+	<partial name="PaginationNav"></partial>
+</div>
