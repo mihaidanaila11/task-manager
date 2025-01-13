@@ -486,7 +486,7 @@ namespace outDO.Controllers
         [HttpPost]
         public async Task<IActionResult> Show(string Id, [FromForm] Comment comment)
         {
-            
+
 
             string commentId = Guid.NewGuid().ToString();
             ModelState.Remove(nameof(comment.Id));
@@ -497,96 +497,96 @@ namespace outDO.Controllers
             comment.UserId = userManager.GetUserId(User).ToString();
             comment.Date = DateTime.Now;
 
-            if(TryValidateModel(comment))
+            if (TryValidateModel(comment))
             {
                 db.Comments.Add(comment);
                 db.SaveChanges();
 
-				return Redirect("/Task/Show/" + Id);
-			}
+                return Redirect("/Task/Show/" + Id);
+            }
             else
             {
-				var task = db.Tasks.Where(t => t.Id == Id).First();
-				var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
+                var task = db.Tasks.Where(t => t.Id == Id).First();
+                var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
 
-				// ---
-				if (task.Video != null)
-				{
-					Tuple<string, string> videoEmbLink = new Tuple<string, string>(string.Empty, string.Empty);
-					Uri videoUri = new Uri(task.Video);
+                // ---
+                if (task.Video != null)
+                {
+                    Tuple<string, string> videoEmbLink = new Tuple<string, string>(string.Empty, string.Empty);
+                    Uri videoUri = new Uri(task.Video);
 
-					string[] YouTubeHosts = {
-						"www.youtube.com",
-						"youtube.com",
-						"youtu.be"};
+                    string[] YouTubeHosts = {
+                        "www.youtube.com",
+                        "youtube.com",
+                        "youtu.be"};
 
-					if (YouTubeHosts.Contains(videoUri.Host.ToLower()))
-					{
-						string youtubeVideoId = System.Web.HttpUtility.ParseQueryString(videoUri.Query).Get("v");
+                    if (YouTubeHosts.Contains(videoUri.Host.ToLower()))
+                    {
+                        string youtubeVideoId = System.Web.HttpUtility.ParseQueryString(videoUri.Query).Get("v");
 
-						string youtubeVideoEmbeded = "https://www.youtube.com/embed/" + youtubeVideoId + "?autoplay=0";
-
-
-						videoEmbLink = new Tuple<string, string>("youtube", youtubeVideoEmbeded);
-					}
-
-					else if (videoUri.Host.ToLower() == "www.tiktok.com")
-					{
-						//Tiktok
-
-						string requestUrl = "https://www.tiktok.com/oembed?url=" + task.Video;
-
-						try
-						{
-							HttpResponseMessage response = await client.GetAsync(requestUrl);
-
-							if (response.IsSuccessStatusCode)
-							{
-								string responseBody = await response.Content.ReadAsStringAsync();
-
-								videoEmbLink = new Tuple<string, string>("tiktok", responseBody);
-							}
-							else
-							{
-								//EROARE
-								// AR TREBUI SA VERIFIC IN MODEL SA EXISTE CLIPURILE!!!!!!!
-							}
-						}
-						catch (Exception ex)
-						{
-							//EROARE
-						}
-
-					}
-					ViewBag.VideoEmbLinks = videoEmbLink;
-				}
-				// ---
+                        string youtubeVideoEmbeded = "https://www.youtube.com/embed/" + youtubeVideoId + "?autoplay=0";
 
 
-				List<Tuple<string, Comment>> userComments = new List<Tuple<string, Comment>>();
+                        videoEmbLink = new Tuple<string, string>("youtube", youtubeVideoEmbeded);
+                    }
 
-				foreach (var comm in comments)
-				{
-					// poate sa fie si null / deleted user
-					var username = (from c in db.Comments
-									join u in db.Users on
-									c.UserId equals u.Id
-									where c.Id == comm.Id
-									select u.UserName).First();
+                    else if (videoUri.Host.ToLower() == "www.tiktok.com")
+                    {
+                        //Tiktok
 
-					if (username == null)
-					{
-						username = "Deleted User";
-					}
+                        string requestUrl = "https://www.tiktok.com/oembed?url=" + task.Video;
 
-					userComments.Add(new Tuple<string, Comment>(username, comm));
-				}
+                        try
+                        {
+                            HttpResponseMessage response = await client.GetAsync(requestUrl);
 
-				ViewBag.comments = userComments;
+                            if (response.IsSuccessStatusCode)
+                            {
+                                string responseBody = await response.Content.ReadAsStringAsync();
 
-				return View(task);
+                                videoEmbLink = new Tuple<string, string>("tiktok", responseBody);
+                            }
+                            else
+                            {
+                                //EROARE
+                                // AR TREBUI SA VERIFIC IN MODEL SA EXISTE CLIPURILE!!!!!!!
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            //EROARE
+                        }
+
+                    }
+                    ViewBag.VideoEmbLinks = videoEmbLink;
+                }
+                // ---
+
+
+                List<Tuple<string, Comment>> userComments = new List<Tuple<string, Comment>>();
+
+                foreach (var comm in comments)
+                {
+                    // poate sa fie si null / deleted user
+                    var username = (from c in db.Comments
+                                    join u in db.Users on
+                                    c.UserId equals u.Id
+                                    where c.Id == comm.Id
+                                    select u.UserName).First();
+
+                    if (username == null)
+                    {
+                        username = "Deleted User";
+                    }
+
+                    userComments.Add(new Tuple<string, Comment>(username, comm));
+                }
+
+                ViewBag.comments = userComments;
+
+                return View(task);
             }
-
+        }
             // 
 
         public IActionResult AddMember(string id, string userId)
