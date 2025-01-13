@@ -10,6 +10,7 @@ using System.Net.NetworkInformation;
 using Task = outDO.Models.Task;
 using System.Threading.Tasks;
 using System.Net;
+using outDO.Services;
 
 namespace outDO.Controllers
 {
@@ -42,7 +43,25 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult New(string id)
         {
-            ViewBag.BoardId = id;
+			ProjectService projectService = new ProjectService(db);
+
+			var projectId = from t in db.Tasks
+							join b in db.Boards on
+							t.BoardId equals b.Id
+							where t.Id == id
+							select b.ProjectId;
+
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(projectId.First(), userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					return Redirect("/Identity/Account/AccessDenied");
+				}
+			}
+
+			ViewBag.BoardId = id;
 
             return View();
         }
@@ -147,12 +166,24 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Delete(string id)
         {
-            if(!isUserAuthorized(id) && !User.IsInRole("Admin"))
-            {
-                return StatusCode(403);
-            }
+			ProjectService projectService = new ProjectService(db);
 
-            Task task = db.Tasks.Find(id);
+			var projectId = from t in db.Tasks
+							join b in db.Boards on
+							t.BoardId equals b.Id
+							select b.ProjectId;
+
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(projectId.First(), userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					return Redirect("/Identity/Account/AccessDenied");
+				}
+			}
+
+			Task task = db.Tasks.Find(id);
 
             if (task.Media != null)
             {
@@ -171,12 +202,27 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Edit(string id)
         {
-            if (!isUserAuthorized(id))
-            {
-                return StatusCode(403);
-            }
-            
-            Task task = db.Tasks.Find(id);
+			ProjectService projectService = new ProjectService(db);
+
+			var projectId = from t in db.Tasks
+							join b in db.Boards on
+							t.BoardId equals b.Id
+							select b.ProjectId;
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(projectId.First(), userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					isAuthorized = projectService.isUserTaskMember(id, userManager.GetUserId(User));
+					if (!isAuthorized)
+					{
+						return Redirect("/Identity/Account/AccessDenied");
+					}
+				}
+			}
+
+			Task task = db.Tasks.Find(id);
 
             //membrii proiectului care nu sunt deja assigned la task
             var ProjectMembers = (from t in db.Tasks
@@ -258,14 +304,18 @@ namespace outDO.Controllers
                     return View(task);
                 }
 
-                // Stergem poza veche
-                var storagePath = Path.Combine(_env.WebRootPath + task.Media);
-                System.IO.File.Delete(storagePath);
+				// Stergem poza veche
+				if (task.Media != null)
+                {
+					var oldStoragePath = Path.Combine(_env.WebRootPath + task.Media);
+					System.IO.File.Delete(oldStoragePath);
+				}
+                
 
                 // Cale stocare
                 string timeSignature = DateTime.Now.Ticks.ToString();
 
-                storagePath = Path.Combine(_env.WebRootPath, "images",
+                var storagePath = Path.Combine(_env.WebRootPath, "images",
                 id + timeSignature + fileExtension);
 
                 //  Nume unic pentru fiecare task
@@ -325,7 +375,26 @@ namespace outDO.Controllers
         [HttpGet]
         public async Task<IActionResult> Show(string Id)
         {
-            var task = db.Tasks.Where(t => t.Id == Id).First();
+			ProjectService projectService = new ProjectService(db);
+			var projectId = from t in db.Tasks
+							join b in db.Boards on
+							t.BoardId equals b.Id
+                            where t.Id == Id
+							select b.ProjectId;
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(projectId.First(), userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					isAuthorized = projectService.isUserTaskMember(Id, userManager.GetUserId(User));
+					if (!isAuthorized)
+					{
+						return Redirect("/Identity/Account/AccessDenied");
+					}
+				}
+			}
+			var task = db.Tasks.Where(t => t.Id == Id).First();
             var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
 
             

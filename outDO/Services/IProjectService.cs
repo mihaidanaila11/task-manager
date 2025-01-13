@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using outDO.Data;
 using outDO.Models;
+using System.Drawing;
 
 namespace outDO.Services
 {
@@ -14,6 +15,8 @@ namespace outDO.Services
         bool isUsersComment(string commentId, string userId);
 
         bool isUserTaskMember(string taskId, string userId);
+
+        bool isUserMemberProject(string projectId, string userId);
     }
 
     public class ProjectService : IProjectService
@@ -142,7 +145,7 @@ namespace outDO.Services
                           join pm in db.ProjectMembers on
                           p.Id equals pm.ProjectId
                           where t.Id == taskId
-                          where pm.ProjectRole == "Membru"
+                          where pm.ProjectRole == "Member"
                           select pm.UserId;
             if (!usersId.Any())
             {
@@ -155,5 +158,22 @@ namespace outDO.Services
             return false;
         }
 
-    }
+		public bool isUserMemberProject(string projectId, string userId)
+		{
+			var usersId = from pm in db.ProjectMembers
+						  where pm.ProjectRole == "Member"
+                          where pm.ProjectId == projectId
+						  select pm.UserId;
+			if (!usersId.Any())
+			{
+				return false;
+			}
+			if (usersId.Contains(userId))
+			{
+				return true;
+			}
+			return false;
+		}
+
+	}
 }
