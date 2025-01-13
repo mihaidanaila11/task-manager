@@ -45,16 +45,15 @@ namespace outDO.Controllers
         {
 			ProjectService projectService = new ProjectService(db);
 
-			var projectId = from t in db.Tasks
-							join b in db.Boards on
-							t.BoardId equals b.Id
-							where t.Id == id
+			var projectId = 
+							from b in db.Boards
+							where b.Id == id
 							select b.ProjectId;
 
 
 			if (!User.IsInRole("Admin"))
 			{
-				var isAuthorized = projectService.isUserOrganiserProject(projectId.First(), userManager.GetUserId(User));
+				var isAuthorized = projectService.isUserOrganiserProject(projectId.ToList().First(), userManager.GetUserId(User));
 				if (!isAuthorized)
 				{
 					return Redirect("/Identity/Account/AccessDenied");
@@ -166,37 +165,17 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Delete(string id)
         {
-			ProjectService projectService = new ProjectService(db);
-
-			var projectId = from t in db.Tasks
-							join b in db.Boards on
-							t.BoardId equals b.Id
-							select b.ProjectId;
-
-
-			if (!User.IsInRole("Admin"))
-			{
-				var isAuthorized = projectService.isUserOrganiserProject(projectId.First(), userManager.GetUserId(User));
-				if (!isAuthorized)
-				{
-					return Redirect("/Identity/Account/AccessDenied");
-				}
-			}
-
 			Task task = db.Tasks.Find(id);
+			string boardId = task.BoardId;
 
-            if (task.Media != null)
-            {
-                var storagePath = Path.Combine(_env.WebRootPath + task.Media);
+			ProjectService projectService = new ProjectService(db);
+            string userId = userManager.GetUserId(User);
+			User user = db.Users.Find(userId);
 
-                System.IO.File.Delete(storagePath);
-            }
 
-            string boardId = task.BoardId;
-            db.Tasks.Remove(task);
-            db.SaveChanges();
+            projectService.deleteTask(id, userId, User.IsInRole("Admin"), _env);
 
-            return Redirect("/Board/Show/" + boardId);
+			return Redirect("/Board/Show/" + boardId);
         }
 
         [Authorize]
@@ -292,6 +271,7 @@ namespace outDO.Controllers
             ViewBag.TaskMembers = TaskMembers;
 
             bool mediaCheck = false;
+            bool oldMedia = false;
 
             if (Media != null && Media.Length > 0)
             {
@@ -339,9 +319,14 @@ namespace outDO.Controllers
             {
                 if (requestTask.Video == null)
                 {
-                    ModelState.AddModelError(string.Empty, "At least one media element");
 
-                    return View(requestTask);
+                    if (!(task.Video != null || task.Media != null))
+                    {
+						ModelState.AddModelError(string.Empty, "At least one media element");
+
+						return View(requestTask);
+					}
+                    oldMedia = true;
                 }
             }
 
@@ -355,8 +340,13 @@ namespace outDO.Controllers
                     task.Status = requestTask.Status;
                     task.DateStart = requestTask.DateStart;
                     task.DateFinish = requestTask.DateFinish;
-                    task.Media = requestTask.Media;
-                    task.Video = requestTask.Video;
+
+                    if (!oldMedia)
+                    {
+						task.Media = requestTask.Media;
+						task.Video = requestTask.Video;
+					}
+                    
                     
                     await db.SaveChangesAsync();
                     return Redirect("/Task/Show/" + id);
@@ -587,7 +577,6 @@ namespace outDO.Controllers
                 return View(task);
             }
         }
-
         public IActionResult AddMember(string id, string userId)
         {
             Task task = db.Tasks.Find(id);

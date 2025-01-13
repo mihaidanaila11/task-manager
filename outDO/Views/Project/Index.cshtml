@@ -3,13 +3,17 @@
 @inject UserManager<User> UserManager
 @inject IProjectService ProjectService
 
+@{
+	ViewData["Title"] = "Projects";
+}
+
 @section Styles {
 	<link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
 }
 <body>
 <div class="m-3 pt-4">
 	<h2 style="font-family:'Courier New'; font-weight:600; color:#89dce4;">
-		☆ Afisare Proiecte
+		☆ Here are all your projects
 	</h2>
 
 	<br />

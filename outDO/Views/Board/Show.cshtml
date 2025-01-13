@@ -6,6 +6,10 @@
 @model outDO.Models.Board
 @using Newtonsoft.Json
 
+@{
+	ViewData["Title"] = Model.Name;
+}
+
 @section Styles {
 	<link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
 	<style>

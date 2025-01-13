@@ -5,6 +5,10 @@
 @inject IProjectService ProjectService
 @model outDO.Models.Project
 
+@{
+	ViewData["Title"] = Model.Name;
+}
+
 @section Styles {
 	<link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
 	<style>
@@ -44,8 +48,8 @@
 
 	@if (User.IsInRole("Admin"))
 	{
-		<a class="btn btn-danger mb-3" asp-controller="Project" asp-action="Delete" asp-route-id="@Model.Id">Delete Project</a>
-			<a class="btn btn-info mb-3" asp-controller="Project" asp-action="AdminMembers" asp-route-id="@Model.Id">Manage All Project Members</a>
+		<a class="btn btn-danger" asp-controller="Project" asp-action="Delete" asp-route-id="@Model.Id">Delete Project</a>
+			<a class="btn btn-info" asp-controller="Project" asp-action="AdminMembers" asp-route-id="@Model.Id">Manage All Project Members</a>
 	}
 </div>
 <h3>☾ Boards</h3>

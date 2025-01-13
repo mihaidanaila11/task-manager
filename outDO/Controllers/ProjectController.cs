@@ -20,15 +20,19 @@ namespace outDO.Controllers
         private readonly ApplicationDbContext db;
         private readonly UserManager<User> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
-        public ProjectController(ApplicationDbContext context, UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager)
-        {
-            db = context;
-            userManager = _userManager;
-            roleManager = _roleManager;
-        }
+		private readonly IWebHostEnvironment env;
+		public ProjectController(ApplicationDbContext context, 
+            UserManager<User> _userManager, 
+            RoleManager<IdentityRole> _roleManager, IWebHostEnvironment _env)
+		{
+			db = context;
+			userManager = _userManager;
+			roleManager = _roleManager;
+			env = _env;
+		}
 
 
-        [Authorize]
+		[Authorize]
         public IActionResult Index()
         {
             var projects = from pm in db.ProjectMembers
@@ -177,7 +181,23 @@ namespace outDO.Controllers
 
             Project project = db.Projects.Find(id);
 
-            db.Projects.Remove(project);
+            var tasks = from p in db.Projects
+                        join b in db.Boards on
+						p.Id equals b.ProjectId 
+                        join t in db.Tasks on
+                        b.Id equals t.BoardId
+						where p.Id == project.Id
+                        select t;
+
+            foreach(var task in tasks)
+            {
+				string userId = userManager.GetUserId(User);
+				User user = db.Users.Find(userId);
+
+                projectService.deleteTask(task.Id, userId, User.IsInRole("Admin"), env);
+            }
+
+             db.Projects.Remove(project);
             db.SaveChanges();
 
             if(pag)
@@ -330,7 +350,8 @@ namespace outDO.Controllers
 
         public IActionResult RemoveOrganiser(string id, string userId)
         {
-            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
+
+            if (!isUserAuthorized(id) && !User.IsInRole("Admin") && userId != userManager.GetUserId(User))
             {
                 return Redirect("/Identity/Account/AccessDenied");
             }

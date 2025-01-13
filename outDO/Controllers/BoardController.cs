@@ -21,11 +21,15 @@ namespace outDO.Controllers
         private readonly UserManager<User> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly HttpClient client;
-        public BoardController(ApplicationDbContext context,UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager)
-        {
+		private readonly IWebHostEnvironment env;
+		public BoardController(ApplicationDbContext context,UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager,
+			IWebHostEnvironment _env)
+
+		{
             db = context;
             userManager = _userManager;
             roleManager = _roleManager;
+            env = _env; 
 
             HttpClientHandler handler = new HttpClientHandler
             {
@@ -223,6 +227,16 @@ namespace outDO.Controllers
 			}
 
             string projectId = board.ProjectId;
+
+            foreach (var task in db.Tasks.Where(t => t.BoardId == id))
+            {
+				string userId = userManager.GetUserId(User);
+				User user = db.Users.Find(userId);
+
+
+				projectService.deleteTask(task.Id, userId, User.IsInRole("Admin"), env);
+            }
+
             db.Boards.Remove(board);
             db.SaveChanges();
 
