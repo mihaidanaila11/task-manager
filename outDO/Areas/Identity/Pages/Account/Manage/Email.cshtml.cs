@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using outDO.Models;
+using Task = System.Threading.Tasks.Task;
 
 namespace outDO.Areas.Identity.Pages.Account.Manage
 {
