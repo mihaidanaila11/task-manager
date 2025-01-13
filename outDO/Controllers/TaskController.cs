@@ -165,37 +165,17 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Delete(string id)
         {
-			ProjectService projectService = new ProjectService(db);
-
-			var projectId = from t in db.Tasks
-							join b in db.Boards on
-							t.BoardId equals b.Id
-							select b.ProjectId;
-
-
-			if (!User.IsInRole("Admin"))
-			{
-				var isAuthorized = projectService.isUserOrganiserProject(projectId.First(), userManager.GetUserId(User));
-				if (!isAuthorized)
-				{
-					return Redirect("/Identity/Account/AccessDenied");
-				}
-			}
-
 			Task task = db.Tasks.Find(id);
+			string boardId = task.BoardId;
 
-            if (task.Media != null)
-            {
-                var storagePath = Path.Combine(_env.WebRootPath + task.Media);
+			ProjectService projectService = new ProjectService(db);
+            string userId = userManager.GetUserId(User);
+			User user = db.Users.Find(userId);
 
-                System.IO.File.Delete(storagePath);
-            }
 
-            string boardId = task.BoardId;
-            db.Tasks.Remove(task);
-            db.SaveChanges();
+            projectService.deleteTask(id, userId, User.IsInRole("Admin"), _env);
 
-            return Redirect("/Board/Show/" + boardId);
+			return Redirect("/Board/Show/" + boardId);
         }
 
         [Authorize]
