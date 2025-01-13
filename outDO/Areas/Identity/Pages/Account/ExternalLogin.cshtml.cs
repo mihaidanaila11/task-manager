@@ -118,7 +118,7 @@ namespace outDO.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-			if (_db.BannedEmails.Where(b => b.email == info.Principal.FindFirstValue(ClaimTypes.Email)).ToList().Count > 0)
+			if (_db.BannedEmails.Where(b => b.email == info.Principal.FindFirstValue(ClaimTypes.Name)).ToList().Count > 0)
 			{
                 ErrorMessage = "This Email has been banned";
 				return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
@@ -129,6 +129,7 @@ namespace outDO.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+
                 return LocalRedirect(returnUrl);
             }
             if (result.IsLockedOut)
