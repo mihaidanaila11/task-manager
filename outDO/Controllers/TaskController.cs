@@ -577,14 +577,12 @@ namespace outDO.Controllers
                 return View(task);
             }
         }
-            // 
-
         public IActionResult AddMember(string id, string userId)
         {
             Task task = db.Tasks.Find(id);
             if (task.TaskMembers == null)
             {
-                task.TaskMembers = new List<User>();  // or whatever your User type is
+                task.TaskMembers = new List<User>();
             }
             task.TaskMembers.Add(db.Users.Find(userId));
             db.SaveChanges();

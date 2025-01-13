@@ -34,24 +34,6 @@ namespace outDO.Controllers
         public IActionResult Users()
         {
 
-            List<Tuple<User, bool>> users= new List<Tuple<User, bool>>();
-            List<Tuple<User, bool>> bannedUsers = new List<Tuple<User, bool>>();
-
-            foreach (var user in db.Users)
-            {
-                if(db.BannedEmails.Where(b => b.email == user.UserName).ToList().Count > 0)
-                {
-                    bannedUsers.Add(new Tuple<User, bool>(user, true));
-				}
-                else
-                {
-					users.Add(new Tuple<User, bool>(user, false));
-				}
-            }
-
-            ViewBag.Users = users;
-            ViewBag.bannedUsers = bannedUsers;
-
             //toti adminii  inafara de user ul curent
             var admins = userManager.GetUsersInRoleAsync("Admin").Result;
             //inafara de user ul curent
@@ -60,11 +42,30 @@ namespace outDO.Controllers
             ViewBag.admins = admins;
 
             //user ii inafar de admini
-           /* var users = from u in db.Users
+            var nonAdmins = from u in db.Users
                         where !admins.Contains(u)
+                        where u.Id != userManager.GetUserId(User)
                         select u;
 
-            ViewBag.UsersV = userManager.Users;*/
+
+            //userii inafara de admini + banned status
+            List<Tuple<User, bool>> users = new List<Tuple<User, bool>>();
+            List<Tuple<User, bool>> bannedUsers = new List<Tuple<User, bool>>();
+
+            foreach (var user in nonAdmins)
+            {
+                if (db.BannedEmails.Where(b => b.email == user.UserName).ToList().Count > 0)
+                {
+                    bannedUsers.Add(new Tuple<User, bool>(user, true));
+                }
+                else
+                {
+                    users.Add(new Tuple<User, bool>(user, false));
+                }
+            }
+
+            ViewBag.Users = users;
+            ViewBag.bannedUsers = bannedUsers;
 
             return View();
         }
@@ -133,7 +134,7 @@ namespace outDO.Controllers
 
         public IActionResult AddAdmin(string id, bool banned)
         {
-            if (banned = false)
+            if (banned == true)
             {
 
                 User user = userManager.FindByIdAsync(id).Result;

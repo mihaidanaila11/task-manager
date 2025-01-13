@@ -3,6 +3,9 @@
 @inject IProjectService ProjectService
 @inject UserManager<User> UserManager
 @model outDO.Models.Task
+@{
+    ViewData["Title"] = "Edit Task";
+}
 <h1>Edit task</h1>
 @if (!ProjectService.isUserOrganiserTask(Model.Id, UserManager.GetUserId(User)))
 {
