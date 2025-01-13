@@ -321,13 +321,18 @@ namespace outDO.Controllers
                 if (requestTask.Video == null)
                 {
 
-                    if (!(task.Video != null || task.Media != null))
+                    if (task.Video == null && task.Media == null)
                     {
 						ModelState.AddModelError(string.Empty, "At least one media element");
 
 						return View(requestTask);
 					}
                     oldMedia = true;
+                }
+                else
+                {
+                    var oldStoragePath = Path.Combine(_env.WebRootPath + task.Media);
+                    System.IO.File.Delete(oldStoragePath);
                 }
             }
 
@@ -341,11 +346,12 @@ namespace outDO.Controllers
                     task.Status = requestTask.Status;
                     task.DateStart = requestTask.DateStart;
                     task.DateFinish = requestTask.DateFinish;
+                    task.Video = requestTask.Video;
 
                     if (!oldMedia)
                     {
 						task.Media = requestTask.Media;
-						task.Video = requestTask.Video;
+						
 					}
                     
                     
