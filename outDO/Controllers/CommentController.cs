@@ -66,7 +66,7 @@ namespace outDO.Controllers
         {
             if (!isUserAuthorized(id) && !isUsersComment(id) && !User.IsInRole("Admin"))
             {
-                return StatusCode(403);
+                return Redirect("/Identity/Account/AccessDenied");
             }
 
             Comment comment = db.Comments.Where(c => c.Id == id).First();
@@ -83,7 +83,7 @@ namespace outDO.Controllers
         {
             if (!isUsersComment(id))
             {
-                return StatusCode(403);
+                return Redirect("/Identity/Account/AccessDenied");
             }
 
             Comment comment = db.Comments.Where(c => c.Id == id).First();

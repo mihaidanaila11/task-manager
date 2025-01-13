@@ -12,3 +12,9 @@
     
 }
 
+body {
+    margin-bottom: 60px;
+    font-family: monospace, 'Courier New' !important;
+    font-optical-sizing: auto !important;
+    background: linear-gradient(45deg, rgba(70, 17, 156,1) 0%, rgba(22, 133, 178,1) 65%, rgba(22, 178, 55,1) 100%) !important;
+}

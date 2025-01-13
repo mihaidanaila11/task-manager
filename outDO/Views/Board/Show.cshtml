@@ -32,7 +32,7 @@
 
 <h3>✧ Tasks</h3>
 <div class="d-flex justify-content-around mt-3">
-	@foreach (var task in ViewBag.Tasks)
+	@foreach (var task in ViewBag.paginatedTasks)
 	{
 		<div class="card col-3 text-center project-card">
 			<div class="m-3">
@@ -80,40 +80,6 @@
 					}
 					<hr />
 				</div>
-
-				@if (task.Media != null)
-				{
-					<img src="@task.Media" class="img-thumbnail" />
-				}
-
-				@if (task.Video != null)
-				{
-					<div class="embed-responsive embed-responsive-16by9">
-						@{
-							if (ViewBag.videoEmbLinks[task.Id] != null)
-							{
-								if (ViewBag.videoEmbLinks[task.Id].Item1 == "youtube")
-								{
-
-									<iframe class="embed-responsive-item mt-3"
-											src="@ViewBag.videoEmbLinks[task.Id].Item2"
-											title="YouTube video player"
-											frameborder="0"></iframe>
-
-								}
-								else if (ViewBag.videoEmbLinks[task.Id].Item1 == "tiktok")
-								{
-									// var requestResponse = new Microsoft.AspNetCore.Html.HtmlString((ViewBag.videoEmbLinks[task.Id].Item2));
-									var requestResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(ViewBag.videoEmbLinks[task.Id].Item2);
-
-									var tiktokEmbeded = new Microsoft.AspNetCore.Html.HtmlString(requestResponse["html"]);
-									<div>@tiktokEmbeded</div>
-								}
-							}
-						}
-					</div>
-				}
-
 			</div>
 		</div>
 	}

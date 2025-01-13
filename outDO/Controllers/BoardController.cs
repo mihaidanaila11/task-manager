@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using outDO.Data;
 using outDO.Models;
+using outDO.Services;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -37,7 +38,18 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult New(string id)
         {
-            ViewBag.ProjectId = id;
+			ProjectService projectService = new ProjectService(db);
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(id, userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					return Redirect("/Identity/Account/AccessDenied");
+				}
+			}
+
+			ViewBag.ProjectId = id;
 
             return View();
         }
@@ -45,6 +57,7 @@ namespace outDO.Controllers
         [HttpPost]
         public IActionResult New([FromForm] Board board)
         {
+
             string id = Guid.NewGuid().ToString();
             board.Id = id;
 
@@ -65,8 +78,22 @@ namespace outDO.Controllers
         [Authorize]
         public async Task<IActionResult> Show(string id)
         {
-            Board board = db.Boards.Where(b => b.Id == id).First();
 
+			ProjectService projectService = new ProjectService(db);
+			Board board = db.Boards.Where(b => b.Id == id).First();
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(board.ProjectId, userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					isAuthorized = projectService.isUserMemberProject(board.ProjectId, userManager.GetUserId(User));
+					if (!isAuthorized)
+					{
+						return Redirect("/Identity/Account/AccessDenied");
+					}
+				}
+			}
 
             var tasks = db.Tasks.Where(t => t.BoardId == board.Id).ToList();
 
@@ -87,14 +114,12 @@ namespace outDO.Controllers
             ViewBag.Tasks = paginatedTasks;
             ViewBag.PaginationBaseUrl ="?page";
 
-            ViewBag.Tasks = paginatedTasks;
+            ViewBag.paginatedTasks = paginatedTasks;
 
             Dictionary<string, Tuple<string, string>> videoEmbLinks = new Dictionary<string, Tuple<string, string>>();
 
             foreach(var paginatedTask in paginatedTasks)
             {
-
-
                 if (paginatedTask.Video != null)
                 {
                     Uri videoUri = new Uri(paginatedTask.Video);
@@ -185,12 +210,17 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Delete(string id)
         {
-            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
-            {
-                return StatusCode(403);
-            }
+			ProjectService projectService = new ProjectService(db);
+			Board board = db.Boards.Where(b => b.Id == id).First();
 
-            Board board = db.Boards.Find(id);
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(board.ProjectId, userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					return Redirect("/Identity/Account/AccessDenied");
+				}
+			}
 
             string projectId = board.ProjectId;
             db.Boards.Remove(board);
@@ -202,13 +232,19 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Edit(string id)
         {
-            if(!isUserAuthorized(id))
-            {
-                return StatusCode(403);
-            }
+			ProjectService projectService = new ProjectService(db);
+			Board board = db.Boards.Where(b => b.Id == id).First();
 
-            Board board = db.Boards.Find(id);
-            ViewBag.Board = board;
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(board.ProjectId, userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					return Redirect("/Identity/Account/AccessDenied");
+				}
+			}
+
+			ViewBag.Board = board;
 
             return View();
         }
