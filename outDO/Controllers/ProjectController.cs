@@ -350,7 +350,8 @@ namespace outDO.Controllers
 
         public IActionResult RemoveOrganiser(string id, string userId)
         {
-            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
+
+            if (!isUserAuthorized(id) && !User.IsInRole("Admin") && userId != userManager.GetUserId(User))
             {
                 return Redirect("/Identity/Account/AccessDenied");
             }

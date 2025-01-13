@@ -149,6 +149,11 @@ namespace outDO.Controllers
 
         public IActionResult RemoveAdmin(string id)
         {
+            if (id != userManager.GetUserId(User))
+            {
+                return Redirect("/Identity/Account/AccessDenied");
+            }
+
             var admins = userManager.GetUsersInRoleAsync("Admin").Result;
 
             if(admins.Count() == 1)
