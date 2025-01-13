@@ -1,11 +1,18 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject UserManager<User> UserManager
 
+@section Styles {
+
+	<link href="@Url.Content("~/css/adminIndex.css")" rel="stylesheet" type="text/css" />
+
+}
+
+
 <body>
 
 	<div>
 		<h2 class="display-2">USER MANAGEMENT</h2>
-		<a class="btn btn-success mb-3" asp-controller="Admin" asp-action="GoBack">Go Back</a>
+		<a class="btn btn-success mb-3" asp-controller="Admin" asp-action="Index">Go Back</a>
 		<h2>Admins</h2>
 		<div class="card mt-3 p-3">
 			<div class="row align-items-center mb-2">
@@ -41,14 +48,14 @@
 		@foreach (var user in ViewBag.users)
 		{
 			<div class="card mt-3">
-				<div class="card-body">
+				<div class="card m-2">
 					<div class="row align-items-center mb-2">
 						<div class="col-auto ">
 							<h5>@user.Item1.UserName</h5>
 							<p>@user.Item1.Email</p>
 						</div>
 						<div class="col text-end ">
-							<a class="btn btn-sucess" asp-controller="Admin" asp-action="AddAdmin" asp-route-id="@user.Item1.Id">Make Admin</a>
+							<a class="btn btn-success" asp-controller="Admin" asp-action="AddAdmin" asp-route-id="@user.Item1.Id" asp-route-banned="@user.Item2">Make Admin</a>
 
 							<a class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deleteUserModal-@user.Item1.Id">Delete User</a>
 
@@ -60,8 +67,8 @@
 											<h5 class="modal-title" id="deleteUserModalLabel">Confirm Delete</h5>
 											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 										</div>
-										<div class="modal-body">
-											Are you sure you want to delete this user?
+										<div class="modal-body" style="color:black">
+											aoleu, esti sigur?
 										</div>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -71,14 +78,59 @@
 								</div>
 							</div>
 
-							@if (!user.Item2)
-							{
-								<a class="btn btn-danger" asp-controller="Admin" asp-action="BanUser" asp-route-id="@user.Item1.Id">Ban User</a>
-							}
-							else
-							{
-								<a class="btn btn-info" asp-controller="Admin" asp-action="UnBanUser" asp-route-id="@user.Item1.Id">UnBan User</a>
-							}
+							<a class="btn btn-danger" asp-controller="Admin" asp-action="BanUser" asp-route-id="@user.Item1.Id">Ban User</a>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		}
+
+		@if (ViewBag.bannedUsers.Count > 0)
+		{	<hr />
+			<h2>Banned Users</h2>
+
+			@if (TempData["AdminUnbanUser"] != null)
+			{
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					@TempData["AdminUnbanUser"]
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+			}
+		}
+		@foreach (var user in ViewBag.bannedUsers)
+		{
+			<div class="card mt-3">
+				<div class="card m-2">
+					<div class="row align-items-center mb-2">
+						<div class="col-auto ">
+							<h5>@user.Item1.UserName</h5>
+							<p>@user.Item1.Email</p>
+						</div>
+
+						<div class="col text-end ">
+							<a class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deleteUserModal-@user.Item1.Id">Delete User</a>
+
+							<!-- pop up daca esti sigur-->
+							<div class="modal fade" id="deleteUserModal-@user.Item1.Id" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="deleteUserModalLabel">Confirm Delete</h5>
+											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+										</div>
+										<div class="modal-body" style="color:black">
+											aoleu, esti sigur?
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+											<a class="btn btn-danger" asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Item1.Id">Delete</a>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<a class="btn btn-info" asp-controller="Admin" asp-action="UnBanUser" asp-route-id="@user.Item1.Id">UnBan User</a>
 						</div>
 
 					</div>

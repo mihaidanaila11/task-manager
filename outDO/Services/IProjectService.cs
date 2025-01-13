@@ -142,8 +142,9 @@ namespace outDO.Services
                           join pm in db.ProjectMembers on
                           p.Id equals pm.ProjectId
                           where t.Id == taskId
-                          where pm.ProjectRole == "Membru"
+                          where pm.ProjectRole == "Member"
                           select pm.UserId;
+
             if (!usersId.Any())
             {
                 return false;

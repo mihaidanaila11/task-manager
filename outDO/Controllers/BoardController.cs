@@ -231,12 +231,7 @@ namespace outDO.Controllers
                 return View();
             }
         }
-
-        public IActionResult GoBack(string id)
-        {   //ne intoarcem la proiectul din care am venit
-            Board board = db.Boards.Find(id);
-            return Redirect("/Project/Show/" + board.ProjectId);
-        }
+ 
 
         public IActionResult Test(string id)
         {

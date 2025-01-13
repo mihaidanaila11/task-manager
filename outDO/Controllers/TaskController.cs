@@ -514,12 +514,7 @@ namespace outDO.Controllers
 
             return View(task);
         }
-
-        public IActionResult GoBack(string id)
-        {   //ne intoarcem la boardul din care am venit
-            Task task = db.Tasks.Find(id);
-            return Redirect("/Board/Show/" + task.BoardId);
-        }
+ 
 
         public IActionResult AddMember(string id, string userId)
         {

@@ -21,13 +21,13 @@
 <div class="m-3">
 	@if (User.IsInRole("Admin"))
 	{
-		<a class="btn btn-success " asp-controller="Project" asp-action="GoBack">Your Projects</a>
-		<a class="btn btn-success  " asp-controller="Project" asp-action="GoBackAdmin">All Projects</a>
+		<a class="btn btn-success " asp-controller="Project" asp-action="Index">Your Projects</a>
+		<a class="btn btn-success  " asp-controller="Admin" asp-action="Projects">All Projects</a>
 
 	}
 	else
 	{
-		<a class="btn btn-success mb-3" asp-controller="Project" asp-action="GoBack">Go Back</a>
+		<a class="btn btn-success" asp-controller="Project" asp-action="Index">Go Back</a>
 
 	}
 	<!-- daca e organizator are access-->
@@ -37,7 +37,7 @@
 
 	@if (isAuthorized)
 	{
-		<a class="btn btn-success mb-3" asp-controller="Board" asp-action="New" asp-route-id="@Model.Id">Add Board</a>
+		<a class="btn btn-success" asp-controller="Board" asp-action="New" asp-route-id="@Model.Id">Add Board</a>
 	}
 
 	@if (User.IsInRole("Admin"))

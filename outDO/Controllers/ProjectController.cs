@@ -200,25 +200,6 @@ namespace outDO.Controllers
             }
         }
 
-        public IActionResult GoBack()
-        {
-            //ne intoarcem la toate proiectele
-            return RedirectToAction("Index");
-        }
-
-        [Authorize(Roles ="Admin")]
-        public IActionResult GoBackAdmin()
-        {
-            if (isUserAuthorized(userManager.GetUserId(User)))
-            {
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                return RedirectToAction("Projects", "Admin");
-            }
-        }
-
         public IActionResult AddMembers(string id, string userId)
         {
             if (!isUserAuthorized(id) || User.IsInRole("Admin"))
