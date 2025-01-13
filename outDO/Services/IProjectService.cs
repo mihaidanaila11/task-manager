@@ -187,6 +187,7 @@ namespace outDO.Services
 			var projectId = from t in db.Tasks
 							join b in db.Boards on
 							t.BoardId equals b.Id
+                            where taskId == t.Id
 							select b.ProjectId;
 
 

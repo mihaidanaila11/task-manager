@@ -186,6 +186,7 @@ namespace outDO.Controllers
 			var projectId = from t in db.Tasks
 							join b in db.Boards on
 							t.BoardId equals b.Id
+                            where t.Id == id
 							select b.ProjectId;
 
 			if (!User.IsInRole("Admin"))

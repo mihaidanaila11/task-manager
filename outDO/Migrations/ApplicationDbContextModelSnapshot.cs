@@ -464,7 +464,7 @@ namespace outDO.Migrations
             modelBuilder.Entity("outDO.Models.Task", b =>
                 {
                     b.HasOne("outDO.Models.Board", "Board")
-                        .WithMany()
+                        .WithMany("Tasks")
                         .HasForeignKey("BoardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -477,6 +477,11 @@ namespace outDO.Migrations
                     b.HasOne("outDO.Models.Task", null)
                         .WithMany("TaskMembers")
                         .HasForeignKey("TaskId");
+                });
+
+            modelBuilder.Entity("outDO.Models.Board", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("outDO.Models.Project", b =>

@@ -15,6 +15,7 @@ namespace outDO.Models
         public string Name { get; set; }
 
         public virtual Project? Project { get; set; }
+        public virtual ICollection<Task>? Tasks { get; set; }
 
 
     }

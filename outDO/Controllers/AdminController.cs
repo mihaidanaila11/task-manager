@@ -134,7 +134,7 @@ namespace outDO.Controllers
 
         public IActionResult AddAdmin(string id, bool banned)
         {
-            if (banned == true)
+            if (banned == false)
             {
 
                 User user = userManager.FindByIdAsync(id).Result;
@@ -143,7 +143,7 @@ namespace outDO.Controllers
             }
             else
             {
-                TempData["AdminUnbanUser"] = "The user must be unbanned before naming as admin.";
+               TempData["AdminUnbanUser"] = "The user must be unbanned before naming as admin.";
                 return RedirectToAction("Users");
             }
         }
