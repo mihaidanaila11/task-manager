@@ -23,7 +23,7 @@
 <h2>☾ @Model.Name</h2>
 <hr />
 
-<a class="btn btn-success mb-3" asp-controller="Board" asp-action="GoBack" asp-route-id="@Model.Id">Go Back</a>
+<a class="btn btn-success mb-3" asp-controller="Project" asp-action="Show" asp-route-id="@Model.ProjectId">Go Back</a>
 
 @if (ProjectService.isUserOrganiserBoard(@Model.Id, UserManager.GetUserId(User)))
 {

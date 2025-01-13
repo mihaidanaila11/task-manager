@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 #Google API keys
 GoogleKeys.json
+/outDO/appsettings.json

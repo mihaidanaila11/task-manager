@@ -8,3 +8,8 @@
 h2 {
     font-family:'Courier New';
 }
+
+.card {
+    background-color:#1f0547;
+    color:white;
+}

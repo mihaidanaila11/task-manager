@@ -35,12 +35,13 @@ namespace outDO.Controllers
         {
 
             List<Tuple<User, bool>> users= new List<Tuple<User, bool>>();
+            List<Tuple<User, bool>> bannedUsers = new List<Tuple<User, bool>>();
 
             foreach (var user in db.Users)
             {
                 if(db.BannedEmails.Where(b => b.email == user.UserName).ToList().Count > 0)
                 {
-					users.Add(new Tuple<User, bool>(user, true));
+                    bannedUsers.Add(new Tuple<User, bool>(user, true));
 				}
                 else
                 {
@@ -49,6 +50,7 @@ namespace outDO.Controllers
             }
 
             ViewBag.Users = users;
+            ViewBag.bannedUsers = bannedUsers;
 
             //toti adminii  inafara de user ul curent
             var admins = userManager.GetUsersInRoleAsync("Admin").Result;
@@ -91,11 +93,6 @@ namespace outDO.Controllers
             return View();
         }
 
-        public IActionResult GoBack()
-        {
-            return RedirectToAction("Index");
-        }
-
 
         public IActionResult BanUser(string id)
         {
@@ -134,11 +131,20 @@ namespace outDO.Controllers
 		}
 
 
-        public IActionResult AddAdmin(string id)
+        public IActionResult AddAdmin(string id, bool banned)
         {
-            User user = userManager.FindByIdAsync(id).Result;
-            userManager.AddToRoleAsync(user, "Admin").Wait();
-            return RedirectToAction("Users");
+            if (banned = false)
+            {
+
+                User user = userManager.FindByIdAsync(id).Result;
+                userManager.AddToRoleAsync(user, "Admin").Wait();
+                return RedirectToAction("Users");
+            }
+            else
+            {
+                TempData["AdminUnbanUser"] = "The user must be unbanned before naming as admin.";
+                return RedirectToAction("Users");
+            }
         }
 
         public IActionResult RemoveAdmin(string id)

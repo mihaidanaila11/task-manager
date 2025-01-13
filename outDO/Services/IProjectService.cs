@@ -147,6 +147,7 @@ namespace outDO.Services
                           where t.Id == taskId
                           where pm.ProjectRole == "Member"
                           select pm.UserId;
+
             if (!usersId.Any())
             {
                 return false;

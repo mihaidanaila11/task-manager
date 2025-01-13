@@ -2,14 +2,29 @@
 @using outDO.Models
 @inject UserManager<User> UserManager
 @model outDO.Models.Project
-
-<h2>@Model.Name</h2>
-<hr />
 @{
-    var userId = @UserManager.GetUserId(User);
+	var userId = @UserManager.GetUserId(User);
 }
+@section Styles {
 
-<a class="btn btn-success mb-3" asp-controller="Project" asp-action="GoBack">Go Back</a>
+
+	<link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
+	<style>
+		body {
+			background: linear-gradient(180deg, rgba(22, 178, 55,1) 0%, rgba(22, 133, 178,1) 100%) !important;
+			margin-bottom: 60px;
+			font-family: monospace, 'Courier New' !important;
+			font-optical-sizing: auto !important;
+            color: white;
+		}
+	</style>
+
+
+}
+<h2>☆ @Model.Name</h2>
+
+
+<a class="btn btn-success mb-3" asp-controller="Project" asp-action="Index">Go Back</a>
 
 	<h3>Organisers</h3>
     <!--user ul si posibilitatea sa nu mai fii organiser-->

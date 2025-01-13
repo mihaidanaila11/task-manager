@@ -7,13 +7,14 @@
 <body>
 	<div>
 		<h2 class="display-2">PROJECT MANAGEMENT</h2>
-		<a class="btn btn-success mb-3" asp-controller="Admin" asp-action="GoBack">Go Back</a>
+		<a class="btn btn-success mb-3" asp-controller="Admin" asp-action="Index">Go Back</a>
 		<hr />
 		<div class="container">
 			@foreach (var project in ViewBag.Projects)
 			{
-				<div class="card mt-3">
-				<div class="row align-items-center mb-2 card-body">
+				<div class="card m-3 p-2">
+				<div class="row align-items-center mb-2">
+
 					<div class="col-auto ">
 						<h5>@project.Name</h5>
 						<p>
