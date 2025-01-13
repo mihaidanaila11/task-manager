@@ -5,18 +5,64 @@
     ViewData["Title"] = "Presentation Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Got things to do?</h1>
-    <h1 class="display-4"><b>outDO yourself</b></h1>
+@section Styles {
+    <link href="@Url.Content("~/css/landing.css")" rel="stylesheet" type="text/css" />
+}
 
-    <p>Using our very good and proffessional and well made</p>
-    <h2 class="display-6">Task Managment Web App</h2> <!--de ce nu merge display 7....-->
-    <p>you will find yourself no longer missing deadlines or forgetting assignments</p>
-    <p>as well as bringing you and your team together in an organized manner!</p>
 
-    <h3 class="display-4">About Us</h3>
-    <p>miau miau</p>
-    <p>hyperlinks la alte pagini? sau about us alta pagina?</p>
-    <p>sneak peeks cum arata sa folosesti board-urile si conturile?</p>
-    <p>miaum miau</p>
+
+<div id="contains" class="container p-2 d-flex flex-column">
+    <nav class="navbar navbar-expand-sm bg-transparent">
+        @* <a class="navbar-brand" href="#"><img src="~/logo/outdo-logo-100.png" class="img-fluid"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button> butonul de home*@
+        <div style="height:100px"></div>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link " asp-area="Identity" asp-page="/Account/Register">Register</a>
+                </li>
+                <li class="nav-item active ml-3">
+                    <a class="nav-link " asp-area="Identity" asp-page="/Account/Login">Login</a>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+
+	
+    <div>
+        <div class="row gx-3">
+            <div class="col-7">
+                <h1 class="display-1 mt-3">
+                    Got things to do? <br />
+                    Achieve <span id="more"> MORE.</span><br />
+                    OutDO yourself
+                </h1>
+
+                <p id="description">
+                    Using our very good and professional and well-made
+                    Task Management Web App you will find yourself no longer missing deadlines or forgetting assignments,
+                    as well as bringing you and your team together in an organized manner!
+                </p>
+            </div>
+
+            <div class="col-5 d-flex flex-column justify-content-center align-items-center">
+                <img class="img-fluid" src="~/logo/outdob400.png">
+            </div>
+        </div>
+
+        <br /> 
+        <br />
+        <br />
+        <br />
+        <div class="row">
+            <div class="col-12 d-flex justify-content-center" >
+                <a id="startbtn" class="btn btn-lg" asp-area="Identity" asp-page="/Account/Register"><strong >☆ Start Doing ☆</strong></a>
+            </div>
+        </div>
+        
+    </div>
+    
 </div>

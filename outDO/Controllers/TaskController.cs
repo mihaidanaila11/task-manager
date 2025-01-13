@@ -9,6 +9,8 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using Task = outDO.Models.Task;
 using System.Threading.Tasks;
+using System.Net;
+using outDO.Services;
 
 namespace outDO.Controllers
 {
@@ -21,6 +23,7 @@ namespace outDO.Controllers
         private readonly UserManager<User> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IWebHostEnvironment _env;
+        private readonly HttpClient client;
         public TaskController(ApplicationDbContext context, UserManager<User> _userManager, 
             RoleManager<IdentityRole> _roleManager, IWebHostEnvironment env)
         {
@@ -28,12 +31,36 @@ namespace outDO.Controllers
             userManager = _userManager;
             roleManager = _roleManager;
             _env = env;
+
+            HttpClientHandler handler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.All
+            };
+
+            client = new HttpClient();
         }
 
         [Authorize]
         public IActionResult New(string id)
         {
-            ViewBag.BoardId = id;
+			ProjectService projectService = new ProjectService(db);
+
+			var projectId = 
+							from b in db.Boards
+							where b.Id == id
+							select b.ProjectId;
+
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(projectId.ToList().First(), userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					return Redirect("/Identity/Account/AccessDenied");
+				}
+			}
+
+			ViewBag.BoardId = id;
 
             return View();
         }
@@ -113,7 +140,7 @@ namespace outDO.Controllers
 
         private bool isUserAuthorized(string taskId)
         {
-            var userId = from t in db.Tasks
+            var userIds = from t in db.Tasks
                          join b in db.Boards on
                          t.BoardId equals b.Id
                          join p in db.Projects on
@@ -122,7 +149,12 @@ namespace outDO.Controllers
                          p.Id equals pm.ProjectId
                          where t.Id == taskId
                          select pm.UserId;
-            if (userId.ToList().Contains(userManager.GetUserId(User))) 
+            if (!userIds.Any())
+            {
+                return false;
+            }
+
+            if (userIds.Contains(userManager.GetUserId(User)))
             {
                 return true;
             }
@@ -133,36 +165,44 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Delete(string id)
         {
-            if(!isUserAuthorized(id) && !User.IsInRole("Admin"))
-            {
-                return StatusCode(403);
-            }
+			Task task = db.Tasks.Find(id);
+			string boardId = task.BoardId;
 
-            Task task = db.Tasks.Find(id);
+			ProjectService projectService = new ProjectService(db);
+            string userId = userManager.GetUserId(User);
+			User user = db.Users.Find(userId);
 
-            if (task.Media != null)
-            {
-                var storagePath = Path.Combine(_env.WebRootPath + task.Media);
 
-                System.IO.File.Delete(storagePath);
-            }
+            projectService.deleteTask(id, userId, User.IsInRole("Admin"), _env);
 
-            string boardId = task.BoardId;
-            db.Tasks.Remove(task);
-            db.SaveChanges();
-
-            return Redirect("/Board/Show/" + boardId);
+			return Redirect("/Board/Show/" + boardId);
         }
 
         [Authorize]
         public IActionResult Edit(string id)
         {
-            if (!isUserAuthorized(id))
-            {
-                return StatusCode(403);
-            }
-            
-            Task task = db.Tasks.Find(id);
+			ProjectService projectService = new ProjectService(db);
+
+			var projectId = from t in db.Tasks
+							join b in db.Boards on
+							t.BoardId equals b.Id
+                            where t.Id == id
+							select b.ProjectId;
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(projectId.First(), userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					isAuthorized = projectService.isUserTaskMember(id, userManager.GetUserId(User));
+					if (!isAuthorized)
+					{
+						return Redirect("/Identity/Account/AccessDenied");
+					}
+				}
+			}
+
+			Task task = db.Tasks.Find(id);
 
             //membrii proiectului care nu sunt deja assigned la task
             var ProjectMembers = (from t in db.Tasks
@@ -232,6 +272,7 @@ namespace outDO.Controllers
             ViewBag.TaskMembers = TaskMembers;
 
             bool mediaCheck = false;
+            bool oldMedia = false;
 
             if (Media != null && Media.Length > 0)
             {
@@ -244,14 +285,18 @@ namespace outDO.Controllers
                     return View(task);
                 }
 
-                // Stergem poza veche
-                var storagePath = Path.Combine(_env.WebRootPath + task.Media);
-                System.IO.File.Delete(storagePath);
+				// Stergem poza veche
+				if (task.Media != null)
+                {
+					var oldStoragePath = Path.Combine(_env.WebRootPath + task.Media);
+					System.IO.File.Delete(oldStoragePath);
+				}
+                
 
                 // Cale stocare
                 string timeSignature = DateTime.Now.Ticks.ToString();
 
-                storagePath = Path.Combine(_env.WebRootPath, "images",
+                var storagePath = Path.Combine(_env.WebRootPath, "images",
                 id + timeSignature + fileExtension);
 
                 //  Nume unic pentru fiecare task
@@ -273,11 +318,16 @@ namespace outDO.Controllers
 
             if (!mediaCheck)
             {
-                if (task.Video == null)
+                if (requestTask.Video == null)
                 {
-                    ModelState.AddModelError(string.Empty, "At least one media element");
 
-                    return View(task);
+                    if (!(task.Video != null || task.Media != null))
+                    {
+						ModelState.AddModelError(string.Empty, "At least one media element");
+
+						return View(requestTask);
+					}
+                    oldMedia = true;
                 }
             }
 
@@ -291,8 +341,13 @@ namespace outDO.Controllers
                     task.Status = requestTask.Status;
                     task.DateStart = requestTask.DateStart;
                     task.DateFinish = requestTask.DateFinish;
-                    task.Media = requestTask.Media;
-                    task.Video = requestTask.Video;
+
+                    if (!oldMedia)
+                    {
+						task.Media = requestTask.Media;
+						task.Video = requestTask.Video;
+					}
+                    
                     
                     await db.SaveChangesAsync();
                     return Redirect("/Task/Show/" + id);
@@ -309,10 +364,84 @@ namespace outDO.Controllers
         }
 
         [HttpGet]
-        public IActionResult Show(string Id)
+        public async Task<IActionResult> Show(string Id)
         {
-            var task = db.Tasks.Where(t => t.Id == Id).First();
+			ProjectService projectService = new ProjectService(db);
+			var projectId = from t in db.Tasks
+							join b in db.Boards on
+							t.BoardId equals b.Id
+                            where t.Id == Id
+							select b.ProjectId;
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(projectId.First(), userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					isAuthorized = projectService.isUserTaskMember(Id, userManager.GetUserId(User));
+					if (!isAuthorized)
+					{
+						return Redirect("/Identity/Account/AccessDenied");
+					}
+				}
+			}
+			var task = db.Tasks.Where(t => t.Id == Id).First();
             var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
+
+            
+
+            // ---
+            if (task.Video != null)
+            {
+                Tuple<string, string> videoEmbLink = new Tuple<string, string>(string.Empty, string.Empty);
+                Uri videoUri = new Uri(task.Video);
+
+                string[] YouTubeHosts = {
+                        "www.youtube.com",
+                        "youtube.com",
+                        "youtu.be"};
+
+                if (YouTubeHosts.Contains(videoUri.Host.ToLower()))
+                {
+                    string youtubeVideoId = System.Web.HttpUtility.ParseQueryString(videoUri.Query).Get("v");
+
+                    string youtubeVideoEmbeded = "https://www.youtube.com/embed/" + youtubeVideoId + "?autoplay=0";
+
+
+                    videoEmbLink = new Tuple<string,string>("youtube", youtubeVideoEmbeded);
+                }
+
+                else if (videoUri.Host.ToLower() == "www.tiktok.com")
+                {
+                    //Tiktok
+
+                    string requestUrl = "https://www.tiktok.com/oembed?url=" + task.Video;
+
+                    try
+                    {
+                        HttpResponseMessage response = await client.GetAsync(requestUrl);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string responseBody = await response.Content.ReadAsStringAsync();
+
+                            videoEmbLink = new Tuple<string, string>("tiktok", responseBody);
+                        }
+                        else
+                        {
+                            //EROARE
+                            // AR TREBUI SA VERIFIC IN MODEL SA EXISTE CLIPURILE!!!!!!!
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //EROARE
+                    }
+                   
+                }
+                ViewBag.VideoEmbLinks = videoEmbLink;
+            }
+            // ---
 
             List<Tuple<string, Comment>> userComments = new List<Tuple<string, Comment>>();
 
@@ -335,14 +464,20 @@ namespace outDO.Controllers
 
             ViewBag.comments = userComments;
 
+            var tasksM = db.Tasks
+            .Include(t => t.TaskMembers)
+            .Where(t => t.Id == Id)
+            .ToList();
+            ViewBag.Tasks = tasksM;
+
 
             return View(task);
         }
 
         [HttpPost]
-        public IActionResult Show(string Id, [FromForm] Comment comment)
+        public async Task<IActionResult> Show(string Id, [FromForm] Comment comment)
         {
-            
+
 
             string commentId = Guid.NewGuid().ToString();
             ModelState.Remove(nameof(comment.Id));
@@ -353,51 +488,102 @@ namespace outDO.Controllers
             comment.UserId = userManager.GetUserId(User).ToString();
             comment.Date = DateTime.Now;
 
-            if(TryValidateModel(comment))
+            if (TryValidateModel(comment))
             {
                 db.Comments.Add(comment);
                 db.SaveChanges();
+
+                return Redirect("/Task/Show/" + Id);
             }
-
-            var task = db.Tasks.Where(t => t.Id == Id).First();
-            var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
-
-            List<Tuple<string, Comment>> userComments = new List<Tuple<string, Comment>>();
-
-            foreach (var comm in comments)
+            else
             {
-                // poate sa fie si null / deleted user
-                var username = (from c in db.Comments
-                                join u in db.Users on
-                                c.UserId equals u.Id
-                                where c.Id == comm.Id
-                                select u.UserName).First();
+                var task = db.Tasks.Where(t => t.Id == Id).First();
+                var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
 
-                if (username == null)
+                // ---
+                if (task.Video != null)
                 {
-                    username = "Deleted User";
+                    Tuple<string, string> videoEmbLink = new Tuple<string, string>(string.Empty, string.Empty);
+                    Uri videoUri = new Uri(task.Video);
+
+                    string[] YouTubeHosts = {
+                        "www.youtube.com",
+                        "youtube.com",
+                        "youtu.be"};
+
+                    if (YouTubeHosts.Contains(videoUri.Host.ToLower()))
+                    {
+                        string youtubeVideoId = System.Web.HttpUtility.ParseQueryString(videoUri.Query).Get("v");
+
+                        string youtubeVideoEmbeded = "https://www.youtube.com/embed/" + youtubeVideoId + "?autoplay=0";
+
+
+                        videoEmbLink = new Tuple<string, string>("youtube", youtubeVideoEmbeded);
+                    }
+
+                    else if (videoUri.Host.ToLower() == "www.tiktok.com")
+                    {
+                        //Tiktok
+
+                        string requestUrl = "https://www.tiktok.com/oembed?url=" + task.Video;
+
+                        try
+                        {
+                            HttpResponseMessage response = await client.GetAsync(requestUrl);
+
+                            if (response.IsSuccessStatusCode)
+                            {
+                                string responseBody = await response.Content.ReadAsStringAsync();
+
+                                videoEmbLink = new Tuple<string, string>("tiktok", responseBody);
+                            }
+                            else
+                            {
+                                //EROARE
+                                // AR TREBUI SA VERIFIC IN MODEL SA EXISTE CLIPURILE!!!!!!!
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            //EROARE
+                        }
+
+                    }
+                    ViewBag.VideoEmbLinks = videoEmbLink;
+                }
+                // ---
+
+
+                List<Tuple<string, Comment>> userComments = new List<Tuple<string, Comment>>();
+
+                foreach (var comm in comments)
+                {
+                    // poate sa fie si null / deleted user
+                    var username = (from c in db.Comments
+                                    join u in db.Users on
+                                    c.UserId equals u.Id
+                                    where c.Id == comm.Id
+                                    select u.UserName).First();
+
+                    if (username == null)
+                    {
+                        username = "Deleted User";
+                    }
+
+                    userComments.Add(new Tuple<string, Comment>(username, comm));
                 }
 
-                userComments.Add(new Tuple<string, Comment>(username, comm));
+                ViewBag.comments = userComments;
+
+                return View(task);
             }
-
-            ViewBag.comments = userComments;
-
-            return View(task);
         }
-
-        public IActionResult GoBack(string id)
-        {   //ne intoarcem la boardul din care am venit
-            Task task = db.Tasks.Find(id);
-            return Redirect("/Board/Show/" + task.BoardId);
-        }
-
         public IActionResult AddMember(string id, string userId)
         {
             Task task = db.Tasks.Find(id);
             if (task.TaskMembers == null)
             {
-                task.TaskMembers = new List<User>();  // or whatever your User type is
+                task.TaskMembers = new List<User>();
             }
             task.TaskMembers.Add(db.Users.Find(userId));
             db.SaveChanges();

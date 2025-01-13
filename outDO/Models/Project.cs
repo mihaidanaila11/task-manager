@@ -10,8 +10,6 @@ namespace outDO.Models
         [Required(ErrorMessage ="Name Required")]
         [MinLength(4, ErrorMessage ="Name has to be at least 4 characters long")]
         public string Name { get; set; }
-        
-        public string? Background { get; set; }
 
         //un proiect are mai multe board-uri
         public virtual ICollection<Board>? Boards { get; set; }

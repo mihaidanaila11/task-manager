@@ -1,0 +1,16 @@
+﻿body {
+    background: linear-gradient(45deg, rgba(22, 133, 178,1) 20%, rgba(21, 46, 223,1) 100%) !important;
+    margin-bottom: 60px;
+    font-family: monospace, 'Courier New' !important;
+    font-optical-sizing: auto !important;
+}
+
+h2 {
+    font-family:'Courier New';
+}
+
+.card {
+    background-color:#1f0547;
+    color:white;
+}
+

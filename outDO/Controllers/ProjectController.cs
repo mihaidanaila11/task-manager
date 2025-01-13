@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 using outDO.Data;
 using outDO.Models;
+using outDO.Services;
 using Project = outDO.Models.Project;
 
 namespace outDO.Controllers
@@ -19,15 +20,19 @@ namespace outDO.Controllers
         private readonly ApplicationDbContext db;
         private readonly UserManager<User> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
-        public ProjectController(ApplicationDbContext context, UserManager<User> _userManager, RoleManager<IdentityRole> _roleManager)
-        {
-            db = context;
-            userManager = _userManager;
-            roleManager = _roleManager;
-        }
+		private readonly IWebHostEnvironment env;
+		public ProjectController(ApplicationDbContext context, 
+            UserManager<User> _userManager, 
+            RoleManager<IdentityRole> _roleManager, IWebHostEnvironment _env)
+		{
+			db = context;
+			userManager = _userManager;
+			roleManager = _roleManager;
+			env = _env;
+		}
 
 
-        [Authorize]
+		[Authorize]
         public IActionResult Index()
         {
             var projects = from pm in db.ProjectMembers
@@ -93,7 +98,24 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Show(string id)
         {
-            Project project = db.Projects.Where(p => p.Id == id).First();
+            ProjectService projectService= new ProjectService(db);
+			
+
+            if (!User.IsInRole("Admin"))
+            {
+				var isAuthorized = projectService.isUserOrganiserProject(id, userManager.GetUserId(User));
+                if (!isAuthorized)
+                {
+					isAuthorized = projectService.isUserMemberProject(id, userManager.GetUserId(User));
+					if (!isAuthorized)
+					{
+                        return Redirect("/Identity/Account/AccessDenied");
+					}
+				}
+			}
+
+
+			Project project = db.Projects.Where(p => p.Id == id).First();
 
             var boards = db.Boards.Where(b => b.ProjectId == project.Id).ToList();
 
@@ -143,17 +165,42 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Delete(string id)
         {
-            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
-            {
-                return StatusCode(403);
-            }
+			ProjectService projectService = new ProjectService(db);
+
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(id, userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+				    return Redirect("/Identity/Account/AccessDenied");
+				}
+			}
+
+			bool pag = isUserAuthorized(id);
 
             Project project = db.Projects.Find(id);
 
-            db.Projects.Remove(project);
+            var tasks = from p in db.Projects
+                        join b in db.Boards on
+						p.Id equals b.ProjectId 
+                        join t in db.Tasks on
+                        b.Id equals t.BoardId
+						where p.Id == project.Id
+                        select t;
+
+            foreach(var task in tasks)
+            {
+				string userId = userManager.GetUserId(User);
+				User user = db.Users.Find(userId);
+
+                projectService.deleteTask(task.Id, userId, User.IsInRole("Admin"), env);
+            }
+
+             db.Projects.Remove(project);
             db.SaveChanges();
 
-            if(isUserAuthorized(id))
+            if(pag)
             {
                 return RedirectToAction("Index");
             }
@@ -168,12 +215,19 @@ namespace outDO.Controllers
         [Authorize]
         public IActionResult Edit(string id)
         {
-            if (!isUserAuthorized(id))
-            {
-                return StatusCode(403);
-            }
+			ProjectService projectService = new ProjectService(db);
 
-            Project project = db.Projects.Find(id);
+
+			if (!User.IsInRole("Admin"))
+			{
+				var isAuthorized = projectService.isUserOrganiserProject(id, userManager.GetUserId(User));
+				if (!isAuthorized)
+				{
+					return Redirect("/Identity/Account/AccessDenied");
+				}
+			}
+
+			Project project = db.Projects.Find(id);
             ViewBag.Project = project;
 
             return View();
@@ -198,30 +252,11 @@ namespace outDO.Controllers
             }
         }
 
-        public IActionResult GoBack()
-        {
-            //ne intoarcem la toate proiectele
-            return RedirectToAction("Index");
-        }
-
-        [Authorize(Roles ="Admin")]
-        public IActionResult GoBackAdmin()
-        {
-            if (isUserAuthorized(userManager.GetUserId(User)))
-            {
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                return RedirectToAction("Projects", "Admin");
-            }
-        }
-
         public IActionResult AddMembers(string id, string userId)
         {
             if (!isUserAuthorized(id) || User.IsInRole("Admin"))
             {
-                return StatusCode(403);
+                return Redirect("/Identity/Account/AccessDenied");
             }
 
             var thisUserEmail = (from p in db.Projects
@@ -281,7 +316,7 @@ namespace outDO.Controllers
         {
             if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
             {
-                return StatusCode(403);
+                return Redirect("/Identity/Account/AccessDenied");
             }
             //el e deja membru deci trb sa il gasesc si sa il modific
             var projectMember = db.ProjectMembers.Find(memberId, id);
@@ -298,7 +333,7 @@ namespace outDO.Controllers
         {
             if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
             {
-                return StatusCode(403);
+                return Redirect("/Identity/Account/AccessDenied");
             }
 
             ProjectMember projectMember = new ProjectMember();
@@ -315,9 +350,10 @@ namespace outDO.Controllers
 
         public IActionResult RemoveOrganiser(string id, string userId)
         {
-            if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
+
+            if (!isUserAuthorized(id) && !User.IsInRole("Admin") && userId != userManager.GetUserId(User))
             {
-                return StatusCode(403);
+                return Redirect("/Identity/Account/AccessDenied");
             }
 
             //verificam sa nu fie un singur organizator
@@ -328,7 +364,7 @@ namespace outDO.Controllers
                               where pm.ProjectRole == "Organizator"
                               select pm.UserId).ToList();
 
-            if (!User.IsInRole("Admin") && organisers.Count <= 1) //daca e admin face ce vrea
+            if (!User.IsInRole("Admin") && organisers.Count == 1) //daca e admin face ce vrea
             {
                 TempData["AlertMessage"] = "The project must have at least one organiser. Assign a different organiser if you wish to step down";
                 return RedirectToAction("AddMembers", new { id = id, userId = userId });
@@ -349,7 +385,7 @@ namespace outDO.Controllers
         {
             if (!isUserAuthorized(id) && !User.IsInRole("Admin"))
             {
-                return StatusCode(403);
+                return Redirect("/Identity/Account/AccessDenied");
             }
 
             var projectMember = db.ProjectMembers.Find(memberId, id);

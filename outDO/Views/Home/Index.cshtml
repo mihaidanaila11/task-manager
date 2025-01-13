@@ -2,7 +2,22 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Home for logged in users~!</p>
+@section Styles {
+    <style>
+        body{
+            background: linear-gradient(45deg, rgba(123,29,166,1) 27%, rgba(63,68,211,1) 70%, rgba(75,159,168,1) 100%) !important;
+        }
+    </style>
+}
+
+<div class="text-center" style="color: #F6F6F6">
+
+    <h1 class="display-4" style="font-family:'Courier New'; font-weight:500">☆ Welcome ☆</h1>
+
+
+    <div class=" d-flex flex-column justify-content-center align-items-center">
+        <img class="img-fluid" style="height:70vh" src="~/logo/outdob.png">
+    </div>
+
+
 </div>

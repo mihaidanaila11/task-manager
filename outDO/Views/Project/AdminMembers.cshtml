@@ -3,16 +3,37 @@
 @inject UserManager<User> UserManager
 @model outDO.Models.Project
 
+@{
+    ViewData["Title"] = "Admin - Manage Project Members";
+}
+
 <h2>@Model.Name - Administrator View</h2>
 <hr />
 @{
 	var userId = UserManager.GetUserId(User);
 }
-<a class="btn btn-success mb-3" asp-controller="Project" asp-action="GoBackAdmin">Go Back</a>
+@section Styles {
 
+
+    <link href="@Url.Content("~/css/projectIndex.css")" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            background: linear-gradient(0deg, rgba(22, 178, 55,1) 0%, rgba(22, 133, 178,1) 100%) !important;
+            margin-bottom: 60px;
+            font-family: monospace, 'Courier New' !important;
+            font-optical-sizing: auto !important;
+            color:white;
+        }
+    </style>
+
+
+}
+<a class="btn btn-success mb-3" asp-controller="Project" asp-action="Show" asp-route-id="@Model.Id">Go Back To This Project</a>
+<a class="btn btn-success mb-3" asp-controller="Admin" asp-action="Projects">All Projects</a>
+
+<div >
 <h3>Organisers</h3>
 
-<!--organizatorii proiectului + remove -->
 @foreach (var organiser in ViewBag.Organisers)
 {
     <p>@organiser.Email @organiser.UserName</p>
@@ -43,3 +64,4 @@
     <a class="btn btn-dark mb-3" asp-controller="Project" asp-action="AddMember"
        asp-route-id="@Model.Id" asp-route-userId="@userId" asp-route-memberId="@oneuser.Id">Make Project Member</a>
 }
+</div>

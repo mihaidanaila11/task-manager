@@ -159,6 +159,16 @@ namespace outDO.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("outDO.Models.BannedEmail", b =>
+                {
+                    b.Property<string>("email")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("email");
+
+                    b.ToTable("BannedEmails");
+                });
+
             modelBuilder.Entity("outDO.Models.Board", b =>
                 {
                     b.Property<string>("Id")
@@ -213,9 +223,6 @@ namespace outDO.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Background")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -260,6 +267,7 @@ namespace outDO.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Media")
@@ -337,9 +345,6 @@ namespace outDO.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("profilePicture")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -459,7 +464,7 @@ namespace outDO.Migrations
             modelBuilder.Entity("outDO.Models.Task", b =>
                 {
                     b.HasOne("outDO.Models.Board", "Board")
-                        .WithMany()
+                        .WithMany("Tasks")
                         .HasForeignKey("BoardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -472,6 +477,11 @@ namespace outDO.Migrations
                     b.HasOne("outDO.Models.Task", null)
                         .WithMany("TaskMembers")
                         .HasForeignKey("TaskId");
+                });
+
+            modelBuilder.Entity("outDO.Models.Board", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("outDO.Models.Project", b =>
