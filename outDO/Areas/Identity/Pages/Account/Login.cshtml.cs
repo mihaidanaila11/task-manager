@@ -107,17 +107,19 @@ namespace outDO.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-			if (_db.BannedEmails.Where(b => b.email == Input.UserName).ToList().Count > 0)
-			{
-				ModelState.AddModelError(string.Empty, "This Email has been banned");
-				return Page();
-			}
 			returnUrl ??= Url.Content("~/");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             if (ModelState.IsValid)
             {
+                var email = _db.Users.Where(u => u.UserName == Input.UserName).First().Email;
+
+                if (_db.BannedEmails.Where(b => b.email == email).ToList().Count > 0)
+                {
+                    ModelState.AddModelError(string.Empty, "This Email has been banned");
+                    return Page();
+                }
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);

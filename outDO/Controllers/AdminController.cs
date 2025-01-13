@@ -54,7 +54,7 @@ namespace outDO.Controllers
 
             foreach (var user in nonAdmins)
             {
-                if (db.BannedEmails.Where(b => b.email == user.UserName).ToList().Count > 0)
+                if (db.BannedEmails.Where(b => b.email == user.Email).ToList().Count > 0)
                 {
                     bannedUsers.Add(new Tuple<User, bool>(user, true));
                 }
@@ -97,13 +97,13 @@ namespace outDO.Controllers
 
         public IActionResult BanUser(string id)
         {
-            string userName = db.Users.Where(u => u.Id == id).First().UserName;
-            if(!db.BannedEmails.Where(b => b.email == userName).Any())
+            string email = db.Users.Where(u => u.Id == id).First().Email;
+            if(!db.BannedEmails.Where(b => b.email == email).Any())
             {
-                if (userName != null)
+                if (email != null)
                 {
                     BannedEmail bannedEmail = new BannedEmail();
-                    bannedEmail.email = userName;
+                    bannedEmail.email = email;
                     db.BannedEmails.Add(bannedEmail);
                     db.SaveChanges();
                 }
@@ -114,14 +114,14 @@ namespace outDO.Controllers
 
         public IActionResult UnBanUser(string id)
         {
-			string userName = db.Users.Where(u => u.Id == id).First().UserName;
+			string email = db.Users.Where(u => u.Id == id).First().Email;
 
-			if (db.BannedEmails.Where(b => b.email == userName).Any())
+			if (db.BannedEmails.Where(b => b.email == email).Any())
 			{
-				if (userName != null)
+				if (email != null)
 				{
                     
-					BannedEmail bannedEmail = db.BannedEmails.Where(b => b.email == userName).First();
+					BannedEmail bannedEmail = db.BannedEmails.Where(b => b.email == email).First();
 					
 					db.BannedEmails.Remove(bannedEmail);
 					db.SaveChanges();
