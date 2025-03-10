@@ -3,6 +3,7 @@
 # **Platforma “Task management”**
 
 ## Funcționalitățile aplicației:
+**Used Technologies: C#, ASP.NET, LINQ, RAZOR, HTML, CSS**
 
 - [x]  **(0.5p)** Sa existe 4 tipuri de utilizatori:
     - utilizator neinregistrat,
